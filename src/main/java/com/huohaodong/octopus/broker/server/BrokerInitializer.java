@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ public class BrokerInitializer {
 
     @PostConstruct
     public void start() {
-        new Thread(this::initBroker).start();
+        new Thread(this::initBroker, "octopus-broker").start();
     }
 
     public void initBroker() {
@@ -38,8 +39,9 @@ public class BrokerInitializer {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
                 log.info("channel init {}", ch);
-                ch.pipeline().addLast("decoder", new MqttDecoder());
+                ch.pipeline().addLast("heartbeat", new IdleStateHandler(0, 0, 3600));
                 ch.pipeline().addLast("dispatcher", mqttPacketDispatcher);
+                ch.pipeline().addLast("decoder", new MqttDecoder());
                 ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
             }
         });
