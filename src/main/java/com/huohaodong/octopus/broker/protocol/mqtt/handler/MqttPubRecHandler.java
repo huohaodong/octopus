@@ -1,4 +1,13 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
-public class MqttPubRecHandler {
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.mqtt.MqttMessage;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MqttPubRecHandler implements MqttPacketHandler<MqttMessage> {
+    @Override
+    public void doProcess(ChannelHandlerContext ctx, MqttMessage msg) {
+
+    }
 }
