@@ -1,4 +1,4 @@
 package com.huohaodong.octopus.broker.store.subscription.impl;
 
-public class RedisSubscriptionStoreService {
+public class RedisSubscriptionManager {
 }

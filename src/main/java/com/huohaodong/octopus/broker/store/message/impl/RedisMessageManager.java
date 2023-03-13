@@ -1,4 +1,4 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
-public class RedisMessageStoreService {
+public class RedisMessageManager {
 }
