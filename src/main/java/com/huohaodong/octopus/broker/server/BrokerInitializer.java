@@ -40,8 +40,8 @@ public class BrokerInitializer {
             protected void initChannel(NioSocketChannel ch) throws Exception {
                 log.info("channel init {}", ch);
                 ch.pipeline().addLast("heartbeat", new IdleStateHandler(0, 0, 3600));
-                ch.pipeline().addLast("dispatcher", mqttPacketDispatcher);
                 ch.pipeline().addLast("decoder", new MqttDecoder());
+                ch.pipeline().addLast("dispatcher", mqttPacketDispatcher);
                 ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
             }
         });
