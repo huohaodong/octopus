@@ -2,6 +2,7 @@ package com.huohaodong.octopus.broker.store.session;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,5 +15,5 @@ public class Session {
 
     private boolean cleanSession;
 
-    private MqttMessage willMessage;
+    private MqttPublishMessage willMessage;
 }

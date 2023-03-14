@@ -1,6 +1,8 @@
 package com.huohaodong.octopus.broker.protocol.mqtt;
 
 import com.huohaodong.octopus.broker.protocol.mqtt.handler.*;
+import com.huohaodong.octopus.broker.store.session.Session;
+import com.huohaodong.octopus.broker.store.session.SessionManager;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -8,6 +10,7 @@ import io.netty.handler.codec.UnsupportedMessageTypeException;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.AttributeKey;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Component;
 @Component
 @ChannelHandler.Sharable
 public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessage> {
+    private final SessionManager sessionManager;
+
     private final MqttConnectHandler mqttConnectHandler;
 
     private final MqttPublishHandler mqttPublishHandler;
@@ -85,8 +90,17 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            // TODO AttributeKey 改为配置文件，目前是硬编码
+            String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
             if (idleStateEvent.state() == IdleState.ALL_IDLE) {
                 log.info("heartbeat timeout, close channel");
+                // TODO 测试遗嘱消息
+                if (sessionManager.containsKey(clientId)) {
+                    Session session = sessionManager.get(clientId);
+                    if (session.getWillMessage() != null) {
+                        mqttPublishHandler.doProcess(ctx, session.getWillMessage());
+                    }
+                }
                 ctx.close();
             }
         } else {
