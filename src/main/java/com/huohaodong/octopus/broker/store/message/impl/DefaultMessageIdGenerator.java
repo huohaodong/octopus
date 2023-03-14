@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class DefaultMessageIdGenerator implements MessageIdGenerator {
 
-    private final int ID_MIN = 0;
+    private final int ID_MIN = 1;
 
     private final int ID_MAX = 65535;
 
