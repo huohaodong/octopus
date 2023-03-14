@@ -1,5 +1,7 @@
 package com.huohaodong.octopus.broker.store.subscription.trie;
 
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
+
 import java.util.*;
 
 public class CNode {

@@ -1,17 +1,17 @@
 package com.huohaodong.octopus.broker.store.subscription.impl;
 
-import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
+import com.huohaodong.octopus.broker.store.subscription.SubscriptionMatcher;
 import com.huohaodong.octopus.broker.store.subscription.trie.CTrie;
-import com.huohaodong.octopus.broker.store.subscription.trie.Subscription;
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.trie.Topic;
 
 import java.util.Set;
 
-public class CTrieSubscriptionManager implements SubscriptionManager {
+public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
 
     private final CTrie ctrie;
 
-    public CTrieSubscriptionManager() {
+    public CTrieSubscriptionMatcher() {
         this.ctrie = new CTrie();
     }
 

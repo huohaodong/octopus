@@ -15,6 +15,7 @@
  */
 package com.huohaodong.octopus.broker.store.subscription.trie;
 
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

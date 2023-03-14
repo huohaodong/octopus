@@ -1,6 +1,7 @@
 package com.huohaodong.octopus.broker.store.subscription.trie;
 
-import com.huohaodong.octopus.broker.store.subscription.impl.CTrieSubscriptionManager;
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
+import com.huohaodong.octopus.broker.store.subscription.impl.CTrieSubscriptionMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +12,12 @@ import static com.huohaodong.octopus.broker.store.subscription.trie.CTrieTest.cl
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CTrieSubscriptionManagerTest {
-    private CTrieSubscriptionManager sut;
+class CTrieSubscriptionMatcherTest {
+    private CTrieSubscriptionMatcher sut;
 
     @BeforeEach
     public void setUp() {
-        sut = new CTrieSubscriptionManager();
+        sut = new CTrieSubscriptionMatcher();
     }
 
     @Test
@@ -146,7 +147,7 @@ class CTrieSubscriptionManagerTest {
     }
 
     private void assertMatch(String s, String t) {
-        sut = new CTrieSubscriptionManager();
+        sut = new CTrieSubscriptionMatcher();
 
         Subscription sub = clientSubOnTopic("AnySensor1", s);
         sut.subscribe(sub);
@@ -155,7 +156,7 @@ class CTrieSubscriptionManagerTest {
     }
 
     private void assertNotMatch(String subscription, String topic) {
-        sut = new CTrieSubscriptionManager();
+        sut = new CTrieSubscriptionMatcher();
 
         Subscription sub = clientSubOnTopic("AnySensor1", subscription);
         sut.subscribe(sub);

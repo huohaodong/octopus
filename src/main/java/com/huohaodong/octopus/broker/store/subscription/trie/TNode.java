@@ -16,6 +16,8 @@
 package com.huohaodong.octopus.broker.store.subscription.trie;
 
 
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
+
 class TNode extends CNode {
 
     @Override

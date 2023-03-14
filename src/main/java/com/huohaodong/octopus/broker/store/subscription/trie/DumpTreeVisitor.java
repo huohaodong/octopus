@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.store.subscription.trie;
 
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import io.netty.util.internal.StringUtil;
 
 class DumpTreeVisitor implements CTrie.IVisitor<String> {

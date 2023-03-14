@@ -1,13 +1,10 @@
-package com.huohaodong.octopus.broker.store.subscription.trie;
+package com.huohaodong.octopus.broker.store.subscription;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 订阅关系
- */
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
