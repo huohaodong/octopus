@@ -24,4 +24,9 @@ public class InMemoryRepository<K, V> implements Repository<K, V> {
     public V get(K k) {
         return map.get(k);
     }
+
+    @Override
+    public boolean contains(K k) {
+        return map.contains(k);
+    }
 }

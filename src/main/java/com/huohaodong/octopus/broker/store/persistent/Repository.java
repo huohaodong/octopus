@@ -7,4 +7,6 @@ public interface Repository<K, V> {
     V remove(K k);
 
     V get(K k);
+
+    boolean contains(K k);
 }
