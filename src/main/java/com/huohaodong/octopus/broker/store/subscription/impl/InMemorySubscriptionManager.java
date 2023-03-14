@@ -10,19 +10,24 @@ import java.util.Set;
 
 public class InMemorySubscriptionManager implements SubscriptionManager {
 
-    private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
+    private final SubscriptionMatcher matcher;
 
-    private final Repository<String, Subscription> repo = new InMemoryRepository<>();
+    private final Repository<String, Subscription> repository;
+
+    public InMemorySubscriptionManager(SubscriptionMatcher matcher, Repository<String, Subscription> repository) {
+        this.matcher = matcher;
+        this.repository = repository;
+    }
 
     @Override
     public boolean subscribe(Subscription subscription) {
-        repo.put(subscription.getClientId(), subscription);
+        repository.put(subscription.getClientId(), subscription);
         return matcher.subscribe(subscription);
     }
 
     @Override
     public boolean unSubscribe(String clientId, String topicFilter) {
-        repo.remove(clientId);
+        repository.remove(clientId);
         return matcher.unSubscribe(clientId, topicFilter);
     }
 
