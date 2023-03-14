@@ -10,8 +10,9 @@ import java.util.Set;
 
 public class InMemorySubscriptionManager implements SubscriptionManager {
 
-    SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
-    Repository<String, Subscription> repo = new InMemoryRepository<>();
+    private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
+
+    private final Repository<String, Subscription> repo = new InMemoryRepository<>();
 
     @Override
     public boolean subscribe(Subscription subscription) {
