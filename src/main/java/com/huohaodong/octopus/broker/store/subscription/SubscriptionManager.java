@@ -5,9 +5,15 @@ import com.huohaodong.octopus.broker.store.subscription.trie.Subscription;
 import java.util.Set;
 
 public interface SubscriptionManager {
-    Set<Subscription> listAllSubscriptions();
 
-    void addNewSubscription(Subscription subscription);
+    boolean subscribe(Subscription subscription);
 
-    void removeSubscription(String topic, String clientID);
+    boolean unSubscribe(String topic, String clientId);
+
+    Set<Subscription> match(String topic);
+
+    int size();
+
+    String dumpTree();
+
 }

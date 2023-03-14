@@ -1,15 +1,17 @@
-package com.huohaodong.octopus.broker.store.subscription.trie;
+package com.huohaodong.octopus.broker.store.subscription.impl;
 
-import lombok.extern.slf4j.Slf4j;
+import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
+import com.huohaodong.octopus.broker.store.subscription.trie.CTrie;
+import com.huohaodong.octopus.broker.store.subscription.trie.Subscription;
+import com.huohaodong.octopus.broker.store.subscription.trie.Topic;
 
 import java.util.Set;
 
-@Slf4j
-public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
+public class CTrieSubscriptionManager implements SubscriptionManager {
 
     private final CTrie ctrie;
 
-    public CTrieSubscriptionMatcher() {
+    public CTrieSubscriptionManager() {
         this.ctrie = new CTrie();
     }
 

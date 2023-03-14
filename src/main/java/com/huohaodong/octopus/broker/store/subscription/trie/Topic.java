@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class Topic implements Serializable, Comparable<Topic> {
 
-    private static final long serialVersionUID = 2438799283749822L;
+    private static final long serialVersionUID = -8143152001431470940L;
 
     private final String topic;
 
