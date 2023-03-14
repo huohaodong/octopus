@@ -15,9 +15,8 @@ public class CNode {
         this.subscriptions = new HashSet<>();
     }
 
-    //Copy constructor
     private CNode(Token token, List<INode> children, Set<Subscription> subscriptions) {
-        this.token = token; // keep reference, root comparison in directory logic relies on it for now.
+        this.token = token;
         this.subscriptions = new HashSet<>(subscriptions);
         this.children = new ArrayList<>(children);
     }
@@ -76,7 +75,6 @@ public class CNode {
     }
 
     CNode addSubscription(Subscription newSubscription) {
-        // if already contains one with same topic and same client, keep that with higher QoS
         if (subscriptions.contains(newSubscription)) {
             final Subscription existing = subscriptions.stream().filter(s -> s.equals(newSubscription)).findFirst().get();
             subscriptions.remove(existing);

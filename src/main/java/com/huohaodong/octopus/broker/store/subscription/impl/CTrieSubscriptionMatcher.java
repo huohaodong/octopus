@@ -1,8 +1,8 @@
 package com.huohaodong.octopus.broker.store.subscription.impl;
 
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionMatcher;
 import com.huohaodong.octopus.broker.store.subscription.trie.CTrie;
-import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.trie.Topic;
 
 import java.util.Set;
@@ -28,7 +28,7 @@ public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
     }
 
     @Override
-    public boolean unSubscribe(String topicFilter, String clientID) {
+    public boolean unSubscribe(String clientID, String topicFilter) {
         ctrie.removeFromTree(new Topic(topicFilter), clientID);
         return true;
     }
@@ -38,7 +38,6 @@ public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
         return ctrie.size();
     }
 
-    @Override
     public String dumpTree() {
         return ctrie.dumpTree();
     }

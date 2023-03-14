@@ -7,7 +7,7 @@ public class INode {
 
     INode(CNode mainNode) {
         this.mainNode.set(mainNode);
-        if (mainNode instanceof TNode) { // this should never happen
+        if (mainNode instanceof TNode) {
             throw new IllegalStateException("TNode should not be set on mainNnode");
         }
     }

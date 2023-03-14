@@ -152,13 +152,9 @@ public class CTrie {
         } else {
             final CNode cnode = inode.mainNode();
             if (cnode instanceof TNode) {
-                // this inode is a tomb, has no clients and should be cleaned up
-                // Because we implemented cleanTomb below, this should be rare, but possible
-                // Consider calling cleanTomb here too
                 return Action.OK;
             }
             if (cnode.containsOnly(clientId) && topic.isEmpty() && cnode.allChildren().isEmpty()) {
-                // last client to leave this node, AND there are no downstream children, remove via TNode tomb
                 if (inode == this.root) {
                     return inode.compareAndSet(cnode, inode.mainNode().copy()) ? Action.OK : Action.REPEAT;
                 }
@@ -169,22 +165,11 @@ public class CTrie {
                 updatedCnode.removeSubscriptionsFor(clientId);
                 return inode.compareAndSet(cnode, updatedCnode) ? Action.OK : Action.REPEAT;
             } else {
-                //someone else already removed
                 return Action.OK;
             }
         }
     }
 
-    /**
-     * Cleans Disposes of TNode in separate Atomic CAS operation per
-     * http://bravenewgeek.com/breaking-and-entering-lose-the-lock-while-embracing-concurrency/
-     * <p>
-     * We roughly follow this theory above, but we allow CNode with no Subscriptions to linger (for now).
-     *
-     * @param inode   inode that handle to the tomb node.
-     * @param iParent inode parent.
-     * @return REPEAT if the methods wasn't successful or OK.
-     */
     private Action cleanTomb(INode inode, INode iParent) {
         CNode updatedCnode = iParent.mainNode().copy();
         updatedCnode.remove(inode);

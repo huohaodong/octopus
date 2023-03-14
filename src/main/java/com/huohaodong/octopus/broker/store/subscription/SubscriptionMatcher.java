@@ -6,12 +6,10 @@ public interface SubscriptionMatcher {
 
     boolean subscribe(Subscription subscription);
 
-    boolean unSubscribe(String topic, String clientId);
+    boolean unSubscribe(String clientId, String topic);
 
     Set<Subscription> match(String topic);
 
     int size();
-
-    String dumpTree();
 
 }

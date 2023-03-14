@@ -187,7 +187,7 @@ class CTrieSubscriptionMatcherTest {
         sut.subscribe(slashSub2);
 
         // Exercise
-        sut.unSubscribe("/topic", slashSub2.getClientId());
+        sut.unSubscribe(slashSub2.getClientId(), "/topic");
 
         // Verify
         Subscription remainedSubscription = sut.match("/topic").iterator().next();
@@ -201,7 +201,7 @@ class CTrieSubscriptionMatcherTest {
         sut.subscribe(slashSub);
 
         // Exercise
-        sut.unSubscribe("/topic", slashSub.getClientId());
+        sut.unSubscribe(slashSub.getClientId(), "/topic");
 
         // Verify
         final Set<Subscription> matchingSubscriptions = sut.match("/topic");
