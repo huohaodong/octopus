@@ -14,4 +14,6 @@ public interface RetainMessageManager {
 
     Set<RetainMessage> getAllMatched(String topicFilter);
 
+    int size();
+
 }

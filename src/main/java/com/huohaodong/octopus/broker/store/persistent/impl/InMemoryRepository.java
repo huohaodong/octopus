@@ -2,6 +2,7 @@ package com.huohaodong.octopus.broker.store.persistent.impl;
 
 import com.huohaodong.octopus.broker.store.persistent.Repository;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryRepository<K, V> implements Repository<K, V> {
@@ -26,7 +27,17 @@ public class InMemoryRepository<K, V> implements Repository<K, V> {
     }
 
     @Override
-    public boolean contains(K k) {
-        return map.contains(k);
+    public boolean containsKey(K k) {
+        return map.containsKey(k);
+    }
+
+    @Override
+    public Collection<V> getAll() {
+        return map.values();
+    }
+
+    @Override
+    public int size() {
+        return map.size();
     }
 }

@@ -4,6 +4,7 @@ import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
 import com.huohaodong.octopus.broker.store.persistent.Repository;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class InMemoryRetainMessageManager implements RetainMessageManager {
@@ -34,9 +35,43 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
         return repository.get(topic) != null;
     }
 
-    // TODO 待实现
     @Override
     public Set<RetainMessage> getAllMatched(String topicFilter) {
-        return null;
+        Set<RetainMessage> retainMessages = new HashSet<>();
+        if (!topicFilter.contains("#") && !topicFilter.contains("+")) {
+            if (repository.containsKey(topicFilter)) {
+                retainMessages.add(repository.get(topicFilter));
+            }
+        } else {
+            repository.getAll().forEach(entry -> {
+                String topic = entry.getTopic();
+                String[] splitTopics = topic.split("/");
+                String[] splitTopicFilters = topicFilter.split("/");
+                if (splitTopics.length >= splitTopicFilters.length) {
+                    String newTopicFilter = "";
+                    for (int i = 0; i < splitTopicFilters.length; i++) {
+                        String value = splitTopicFilters[i];
+                        if (value.equals("+")) {
+                            newTopicFilter = newTopicFilter + "+/";
+                        } else if (value.equals("#")) {
+                            newTopicFilter = newTopicFilter + "#/";
+                            break;
+                        } else {
+                            newTopicFilter = newTopicFilter + splitTopics[i] + "/";
+                        }
+                    }
+                    newTopicFilter = newTopicFilter.substring(0, newTopicFilter.lastIndexOf("/"));
+                    if (topicFilter.equals(newTopicFilter)) {
+                        retainMessages.add(entry);
+                    }
+                }
+            });
+        }
+        return retainMessages;
+    }
+
+    @Override
+    public int size() {
+        return repository.size();
     }
 }
