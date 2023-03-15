@@ -4,9 +4,11 @@ import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionMatcher;
 import com.huohaodong.octopus.broker.store.subscription.trie.CTrie;
 import com.huohaodong.octopus.broker.store.subscription.trie.Topic;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Service
 public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
 
     private final CTrie ctrie;

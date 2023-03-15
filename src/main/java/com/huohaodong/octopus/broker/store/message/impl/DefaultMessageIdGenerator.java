@@ -1,10 +1,12 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.huohaodong.octopus.broker.store.message.MessageIdGenerator;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Service
 public class DefaultMessageIdGenerator implements MessageIdGenerator {
 
     private final int ID_MIN = 1;

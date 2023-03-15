@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.store.message;
 
+import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 
@@ -15,4 +16,6 @@ public class PublishMessage {
     private MqttQoS QoS;
 
     private byte[] payload;
+
+    private MqttMessageType type;
 }

@@ -1,17 +1,23 @@
 package com.huohaodong.octopus.broker.store.message;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface PublishMessageManager {
 
-    PublishMessage put(String clientId, PublishMessage message);
+    void put(String clientId, PublishMessage message);
 
-    List<PublishMessage> get(String clientId);
+    Collection<PublishMessage> getAllByClientId(String clientId);
 
-    PublishMessage remove(String clientId);
+    PublishMessage get(String clientId, int messageId);
 
     boolean remove(String clientId, int messageId);
 
+    int removeAllByClientId(String clientId);
+
     int size();
+
+    default void put(PublishMessage message) {
+        put(message.getClientId(), message);
+    }
 
 }

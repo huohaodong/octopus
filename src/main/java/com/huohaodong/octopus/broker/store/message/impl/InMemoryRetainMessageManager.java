@@ -3,47 +3,49 @@ package com.huohaodong.octopus.broker.store.message.impl;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
 import com.huohaodong.octopus.broker.store.persistent.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Service
 public class InMemoryRetainMessageManager implements RetainMessageManager {
 
-    private final Repository<String, RetainMessage> repository;
+    private final Repository<String, RetainMessage> inMemoryRetainMessageRepository;
 
-    public InMemoryRetainMessageManager(Repository<String, RetainMessage> repository) {
-        this.repository = repository;
+    public InMemoryRetainMessageManager(Repository<String, RetainMessage> inMemoryRetainMessageRepository) {
+        this.inMemoryRetainMessageRepository = inMemoryRetainMessageRepository;
     }
 
     @Override
     public RetainMessage put(String topic, RetainMessage message) {
-        return repository.put(topic, message);
+        return inMemoryRetainMessageRepository.put(topic, message);
     }
 
     @Override
     public RetainMessage get(String topic) {
-        return repository.get(topic);
+        return inMemoryRetainMessageRepository.get(topic);
     }
 
     @Override
     public RetainMessage remove(String topic) {
-        return repository.remove(topic);
+        return inMemoryRetainMessageRepository.remove(topic);
     }
 
     @Override
     public boolean contains(String topic) {
-        return repository.get(topic) != null;
+        return inMemoryRetainMessageRepository.get(topic) != null;
     }
 
     @Override
     public Set<RetainMessage> getAllMatched(String topicFilter) {
         Set<RetainMessage> retainMessages = new HashSet<>();
         if (!topicFilter.contains("#") && !topicFilter.contains("+")) {
-            if (repository.containsKey(topicFilter)) {
-                retainMessages.add(repository.get(topicFilter));
+            if (inMemoryRetainMessageRepository.containsKey(topicFilter)) {
+                retainMessages.add(inMemoryRetainMessageRepository.get(topicFilter));
             }
         } else {
-            repository.getAll().forEach(entry -> {
+            inMemoryRetainMessageRepository.getAll().forEach(entry -> {
                 String topic = entry.getTopic();
                 String[] splitTopics = topic.split("/");
                 String[] splitTopicFilters = topicFilter.split("/");
@@ -72,6 +74,6 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
 
     @Override
     public int size() {
-        return repository.size();
+        return inMemoryRetainMessageRepository.size();
     }
 }

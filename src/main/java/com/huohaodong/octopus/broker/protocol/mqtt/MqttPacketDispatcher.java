@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Slf4j
 @AllArgsConstructor
 @Component
@@ -82,6 +84,16 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
             default:
                 ctx.channel().close();
                 throw new UnsupportedMessageTypeException(msg.decoderResult().cause(), MqttMessageType.class);
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (cause instanceof IOException) {
+            log.error("IOException, close remote connection");
+            ctx.close();
+        } else {
+            super.exceptionCaught(ctx, cause);
         }
     }
 

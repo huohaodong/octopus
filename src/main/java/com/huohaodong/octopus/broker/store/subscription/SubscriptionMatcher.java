@@ -1,6 +1,6 @@
 package com.huohaodong.octopus.broker.store.subscription;
 
-import java.util.Set;
+import java.util.Collection;
 
 public interface SubscriptionMatcher {
 
@@ -8,7 +8,7 @@ public interface SubscriptionMatcher {
 
     boolean unSubscribe(String clientId, String topic);
 
-    Set<Subscription> match(String topic);
+    Collection<Subscription> match(String topic);
 
     int size();
 

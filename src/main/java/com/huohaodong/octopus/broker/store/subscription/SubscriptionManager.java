@@ -2,6 +2,7 @@ package com.huohaodong.octopus.broker.store.subscription;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
 
+import java.util.Collection;
 import java.util.Set;
 
 /*
@@ -13,7 +14,11 @@ public interface SubscriptionManager {
 
     boolean unSubscribe(String clientId, String topicFilter);
 
-    Set<Subscription> getAllMatched(String topicFilter);
+    Collection<Subscription> getAllMatched(String topicFilter);
+
+    Collection<Subscription> getAllByClientId(String clientId);
+
+    int unSubscribeAll(String clientId);
 
     default boolean subscribe(String clientId, String topic) {
         return subscribe(new Subscription(clientId, topic));
@@ -25,19 +30,6 @@ public interface SubscriptionManager {
 
     default boolean unSubscribe(Subscription subscription) {
         return unSubscribe(subscription.getClientId(), subscription.getTopic());
-    }
-
-    default int unSubscribeAllMatched(String clientId, String topicFilter) {
-        Set<Subscription> matched = getAllMatched(topicFilter);
-        int count = 0;
-        for (Subscription sub : matched) {
-            if (sub.getClientId().equals(clientId)) {
-                if (unSubscribe(clientId, topicFilter)) {
-                    count++;
-                }
-            }
-        }
-        return count;
     }
 
 }
