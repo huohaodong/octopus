@@ -114,21 +114,24 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         // 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
         if (!session.isCleanSession()) {
             Collection<PublishMessage> messages = publishMessageManager.getAllByClientId(clientId);
-            messages.forEach(message -> {
-                if (message.getType().equals(MqttMessageType.PUBLISH)) {
-                    MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-                            new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQoS(), false, 0),
-                            new MqttPublishVariableHeader(message.getTopic(), message.getMessageId()), Unpooled.buffer().writeBytes(message.getPayload()));
-                    channel.writeAndFlush(publishMessage);
-                } else if (message.getType().equals(MqttMessageType.PUBREL)) {
-                    MqttMessage pubRelMessage = MqttMessageFactory.newMessage(
-                            new MqttFixedHeader(MqttMessageType.PUBREL, true, MqttQoS.AT_MOST_ONCE, false, 0),
-                            MqttMessageIdVariableHeader.from(message.getMessageId()), null);
-                    channel.writeAndFlush(pubRelMessage);
-                } else {
-                    log.warn("CONNECT - unknown duplicate message type {}", message.getType());
-                }
-            });
+            // TODO 改为 Optional 接口
+            if (messages != null) {
+                messages.forEach(message -> {
+                    if (message.getType().equals(MqttMessageType.PUBLISH)) {
+                        MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                                new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQoS(), false, 0),
+                                new MqttPublishVariableHeader(message.getTopic(), message.getMessageId()), Unpooled.buffer().writeBytes(message.getPayload()));
+                        channel.writeAndFlush(publishMessage);
+                    } else if (message.getType().equals(MqttMessageType.PUBREL)) {
+                        MqttMessage pubRelMessage = MqttMessageFactory.newMessage(
+                                new MqttFixedHeader(MqttMessageType.PUBREL, true, MqttQoS.AT_MOST_ONCE, false, 0),
+                                MqttMessageIdVariableHeader.from(message.getMessageId()), null);
+                        channel.writeAndFlush(pubRelMessage);
+                    } else {
+                        log.warn("CONNECT - unknown duplicate message type {}", message.getType());
+                    }
+                });
+            }
         }
     }
 }

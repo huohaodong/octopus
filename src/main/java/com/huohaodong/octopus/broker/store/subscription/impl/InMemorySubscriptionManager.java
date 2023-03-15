@@ -62,6 +62,9 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
     @Override
     public int unSubscribeAll(String clientId) {
         Collection<Subscription> subscriptions = getAllByClientId(clientId);
+        if (subscriptions == null) {
+            return 0;
+        }
         for (Subscription sub : subscriptions) {
             unSubscribe(sub);
         }
