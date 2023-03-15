@@ -1,16 +1,17 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
+import com.huohaodong.octopus.broker.store.message.*;
+import com.huohaodong.octopus.broker.store.session.SessionManager;
+import com.huohaodong.octopus.broker.store.subscription.Subscription;
+import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.mqtt.MqttPublishMessage;
+import io.netty.handler.codec.mqtt.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Component
-public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage> {
-    @Override
-    public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
+import java.util.Collection;
 
-    }
-}
 /*
     S ---M(PUBLISH)---> R
     S <---M(PUBREC)--- R
@@ -24,3 +25,106 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
     4. 收到 PUBREL 消息后判断 Repo 中是否含有该消息，如果有则消费该消息；
     5. 返回 PUBCOMP
  */
+@Slf4j
+@Component
+public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage> {
+
+    private SessionManager sessionManager;
+
+    private SubscriptionManager subscriptionManager;
+
+    private PublishMessageManager publishMessageManager;
+
+    private RetainMessageManager retainMessageManager;
+
+    private MessageIdGenerator idGenerator;
+
+    public MqttPublishHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, RetainMessageManager retainMessageManager, MessageIdGenerator idGenerator) {
+        this.sessionManager = sessionManager;
+        this.subscriptionManager = subscriptionManager;
+        this.publishMessageManager = publishMessageManager;
+        this.retainMessageManager = retainMessageManager;
+        this.idGenerator = idGenerator;
+    }
+
+    @Override
+    public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
+        MqttQoS QoS = msg.fixedHeader().qosLevel();
+        byte[] payload = new byte[msg.payload().readableBytes()];
+        msg.payload().getBytes(msg.payload().readerIndex(), payload);
+        if (QoS.equals(MqttQoS.AT_MOST_ONCE)) {
+            sendPublishMessage(msg.variableHeader().topicName(),
+                    msg.fixedHeader().qosLevel(),
+                    payload,
+                    false,
+                    false);
+        } else if (QoS.equals(MqttQoS.AT_LEAST_ONCE)) {
+            this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
+            this.sendPubAckMessage(ctx, msg.variableHeader().packetId());
+        } else if (QoS.equals(MqttQoS.EXACTLY_ONCE)) {
+            this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
+            this.sendPubRecMessage(ctx, msg.variableHeader().packetId());
+        }
+
+        if (msg.fixedHeader().isRetain()) {
+            if (payload.length == 0) {
+                retainMessageManager.remove(msg.variableHeader().topicName());
+            } else {
+                RetainMessage retainMessage = new RetainMessage(msg.variableHeader().topicName(), QoS, payload);
+                retainMessageManager.put(msg.variableHeader().topicName(), retainMessage);
+            }
+        }
+    }
+
+    private void sendPubAckMessage(ChannelHandlerContext ctx, int messageId) {
+        MqttPubAckMessage pubAckMessage = (MqttPubAckMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                MqttMessageIdVariableHeader.from(messageId), null);
+        ctx.channel().writeAndFlush(pubAckMessage);
+    }
+
+    private void sendPubRecMessage(ChannelHandlerContext ctx, int messageId) {
+        MqttMessage pubRecMessage = MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.PUBREC, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                MqttMessageIdVariableHeader.from(messageId), null);
+        ctx.channel().writeAndFlush(pubRecMessage);
+    }
+
+    private void sendPublishMessage(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup) {
+        Collection<Subscription> subscriptions = subscriptionManager.getAllMatched(topic);
+        if (subscriptions == null) {
+            return;
+        }
+        subscriptions.forEach(subscription -> {
+            if (sessionManager.containsKey(subscription.getClientId())) {
+                // 订阅者收到MQTT消息的QoS级别, 最终取决于发布消息的QoS和主题订阅的QoS
+                MqttQoS respQoS = MqttQoS.valueOf(Math.min(mqttQoS.value(), subscription.getQoS().value()));
+                if (respQoS == MqttQoS.AT_MOST_ONCE) {
+                    MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                            new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+                            new MqttPublishVariableHeader(topic, 0), Unpooled.buffer().writeBytes(messageBytes));
+                    log.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}", subscription.getClientId(), topic, respQoS.value());
+                    sessionManager.get(subscription.getClientId()).getChannel().writeAndFlush(publishMessage);
+                }
+                if (respQoS == MqttQoS.AT_LEAST_ONCE) {
+                    int messageId = idGenerator.acquireId();
+                    MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                            new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+                            new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
+                    log.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscription.getClientId(), topic, respQoS.value(), messageId);
+                    publishMessageManager.put(new PublishMessage(subscription.getClientId(), messageId, topic, respQoS, messageBytes, MqttMessageType.PUBLISH));
+                    sessionManager.get(subscription.getClientId()).getChannel().writeAndFlush(publishMessage);
+                }
+                if (respQoS == MqttQoS.EXACTLY_ONCE) {
+                    int messageId = idGenerator.acquireId();
+                    MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                            new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+                            new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
+                    log.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscription.getClientId(), topic, respQoS.value(), messageId);
+                    publishMessageManager.put(new PublishMessage(subscription.getClientId(), messageId, topic, respQoS, messageBytes, MqttMessageType.PUBREL));
+                    sessionManager.get(subscription.getClientId()).getChannel().writeAndFlush(publishMessage);
+                }
+            }
+        });
+    }
+}
