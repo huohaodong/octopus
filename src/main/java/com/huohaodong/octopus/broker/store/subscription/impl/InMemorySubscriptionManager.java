@@ -26,6 +26,9 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
 
     @Override
     public boolean subscribe(Subscription subscription) {
+        if (subscription == null) {
+            return false;
+        }
         String clientId = subscription.getClientId();
         if (!inMemorySubscriptionRepository.containsKey(clientId)) {
             inMemorySubscriptionRepository.put(clientId, new CopyOnWriteArrayList<>());
