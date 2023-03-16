@@ -32,6 +32,12 @@ class InMemorySubscriptionManagerTest {
         manager.subscribe(sub4);
         manager.subscribe(sub5);
 
+        manager.subscribe(sub1);
+        manager.subscribe(sub2);
+        manager.subscribe(sub3);
+        manager.subscribe(sub4);
+        manager.subscribe(new Subscription("client5", "sensor/5/temp", MqttQoS.EXACTLY_ONCE));
+
         Assertions.assertEquals(manager.getAllMatched("sensor/1/temp").size(), 1);
         Assertions.assertEquals(manager.getAllMatched("sensor/2/temp").size(), 1);
         Assertions.assertEquals(manager.getAllMatched("sensor/3/temp").size(), 1);

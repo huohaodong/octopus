@@ -25,6 +25,12 @@ public class CTrieSubscriptionMatcher implements SubscriptionMatcher {
 
     @Override
     public boolean subscribe(Subscription newSubscription) {
+        Set<Subscription> matched = match(newSubscription.getTopic());
+        matched.forEach(subscription -> {
+            if (subscription.getTopic().equals(newSubscription.getTopic())) {
+                unSubscribe(subscription.getClientId(), subscription.getTopic());
+            }
+        });
         ctrie.addToTree(newSubscription);
         return true;
     }
