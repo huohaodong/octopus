@@ -4,7 +4,7 @@ import java.util.Set;
 
 public interface RetainMessageManager {
 
-    RetainMessage put(String topic, RetainMessage message);
+    void put(String topic, RetainMessage message);
 
     RetainMessage get(String topic);
 

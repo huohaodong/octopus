@@ -14,8 +14,8 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
     private final ConcurrentHashMap<String, RetainMessage> map = new ConcurrentHashMap<>();
 
     @Override
-    public RetainMessage put(String topic, RetainMessage message) {
-        return map.put(topic, message);
+    public void put(String topic, RetainMessage message) {
+        map.put(topic, message);
     }
 
     @Override

@@ -12,8 +12,8 @@ public class InMemorySessionManager implements SessionManager {
     private final ConcurrentHashMap<String, Session> map = new ConcurrentHashMap<>();
 
     @Override
-    public Session put(String clientId, Session session) {
-        return map.put(clientId, session);
+    public void put(String clientId, Session session) {
+        map.put(clientId, session);
     }
 
     @Override
