@@ -4,6 +4,7 @@ import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,7 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
-    public Set<RetainMessage> getAllMatched(String topicFilter) {
+    public Collection<RetainMessage> getAllMatched(String topicFilter) {
         Set<RetainMessage> retainMessages = new HashSet<>();
         if (!topicFilter.contains("#") && !topicFilter.contains("+")) {
             if (map.containsKey(topicFilter)) {
