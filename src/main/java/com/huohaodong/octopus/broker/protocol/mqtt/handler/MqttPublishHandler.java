@@ -96,7 +96,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
             return;
         }
         subscriptions.forEach(subscription -> {
-            if (sessionManager.containsKey(subscription.getClientId())) {
+            if (sessionManager.contains(subscription.getClientId())) {
                 // 订阅者收到MQTT消息的QoS级别, 最终取决于发布消息的QoS和主题订阅的QoS
                 MqttQoS respQoS = MqttQoS.valueOf(Math.min(mqttQoS.value(), subscription.getQoS().value()));
                 if (respQoS == MqttQoS.AT_MOST_ONCE) {

@@ -1,7 +1,6 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
-import com.huohaodong.octopus.broker.store.persistent.impl.InMemoryRepository;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,7 @@ class InMemoryRetainMessageManagerTest {
 
     @BeforeEach
     void init() {
-        manager = new InMemoryRetainMessageManager(new InMemoryRepository<>());
+        manager = new InMemoryRetainMessageManager();
     }
 
     @Test

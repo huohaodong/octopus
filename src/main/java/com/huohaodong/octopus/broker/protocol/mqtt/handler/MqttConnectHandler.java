@@ -71,7 +71,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
 
         // 如果会话中已存储这个新连接的clientId, 就关闭之前该clientId的连接
-        if (sessionManager.containsKey(clientId)) {
+        if (sessionManager.contains(clientId)) {
             log.info("Duplicated connection of client {}, close connection", clientId);
             Session session = sessionManager.get(clientId);
             Channel previous = session.getChannel();
@@ -104,7 +104,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         // 存储 clientId 到对应的 channel 中
         channel.attr(AttributeKey.valueOf("CLIENT_ID")).set(clientId);
 
-        Boolean sessionPresent = sessionManager.containsKey(clientId) && !session.isCleanSession();
+        Boolean sessionPresent = sessionManager.contains(clientId) && !session.isCleanSession();
         MqttConnAckMessage connAck = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);

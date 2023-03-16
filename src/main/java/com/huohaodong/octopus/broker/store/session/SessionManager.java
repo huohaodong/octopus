@@ -8,6 +8,6 @@ public interface SessionManager {
 
     Session remove(String clientId);
 
-    boolean containsKey(String clientId);
+    boolean contains(String clientId);
 
 }

@@ -2,45 +2,42 @@ package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
-import com.huohaodong.octopus.broker.store.persistent.impl.InMemoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class InMemoryPublishMessageManager implements PublishMessageManager {
 
     /* ClientId -> Message */
-    InMemoryRepository<String, List<PublishMessage>> inMemoryPublishMessageRepository;
+    ConcurrentHashMap<String, List<PublishMessage>> map = new ConcurrentHashMap<>();
 
     DefaultMessageIdGenerator idGenerator;
 
-    public InMemoryPublishMessageManager(InMemoryRepository<String, List<PublishMessage>> inMemoryPublishMessageRepository, DefaultMessageIdGenerator idGenerator) {
-        this.inMemoryPublishMessageRepository = inMemoryPublishMessageRepository;
+    public InMemoryPublishMessageManager(DefaultMessageIdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
 
     @Override
     public void put(String clientId, PublishMessage message) {
-        if (!inMemoryPublishMessageRepository.containsKey(clientId)) {
-            inMemoryPublishMessageRepository.put(clientId, new CopyOnWriteArrayList<>());
-        }
-        inMemoryPublishMessageRepository.get(clientId).add(message);
+        map.putIfAbsent(clientId, new CopyOnWriteArrayList<>());
+        map.get(clientId).add(message);
     }
 
     @Override
     public Collection<PublishMessage> getAllByClientId(String clientId) {
-        return inMemoryPublishMessageRepository.get(clientId);
+        return map.get(clientId);
     }
 
     @Override
     public PublishMessage get(String clientId, int messageId) {
-        if (!inMemoryPublishMessageRepository.containsKey(clientId)) {
+        if (!map.containsKey(clientId)) {
             return null;
         }
-        for (PublishMessage message : inMemoryPublishMessageRepository.get(clientId)) {
+        for (PublishMessage message : map.get(clientId)) {
             if (message.getMessageId() == messageId) {
                 return message;
             }
@@ -50,19 +47,19 @@ public class InMemoryPublishMessageManager implements PublishMessageManager {
 
     @Override
     public boolean remove(String clientId, int messageId) {
-        if (!inMemoryPublishMessageRepository.containsKey(clientId)) {
+        if (!map.containsKey(clientId)) {
             return false;
         }
         idGenerator.releaseId(messageId);
-        return inMemoryPublishMessageRepository.get(clientId).removeIf(message -> message.getMessageId() == messageId);
+        return map.get(clientId).removeIf(message -> message.getMessageId() == messageId);
     }
 
     @Override
     public int removeAllByClientId(String clientId) {
-        if (!inMemoryPublishMessageRepository.containsKey(clientId)) {
+        if (!map.containsKey(clientId)) {
             return 0;
         }
-        Collection<PublishMessage> messages = inMemoryPublishMessageRepository.remove(clientId);
+        Collection<PublishMessage> messages = map.remove(clientId);
         if (messages != null) {
             messages.forEach(msg -> idGenerator.releaseId(msg.getMessageId()));
             return messages.size();
@@ -72,6 +69,6 @@ public class InMemoryPublishMessageManager implements PublishMessageManager {
 
     @Override
     public int size() {
-        return inMemoryPublishMessageRepository.size();
+        return map.size();
     }
 }

@@ -107,7 +107,7 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
             if (idleStateEvent.state() == IdleState.ALL_IDLE) {
                 log.info("heartbeat timeout, close channel");
                 // TODO 测试遗嘱消息
-                if (sessionManager.containsKey(clientId)) {
+                if (sessionManager.contains(clientId)) {
                     Session session = sessionManager.get(clientId);
                     if (session.getWillMessage() != null) {
                         mqttPublishHandler.doProcess(ctx, session.getWillMessage());
