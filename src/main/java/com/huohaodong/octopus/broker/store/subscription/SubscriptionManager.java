@@ -1,6 +1,7 @@
 package com.huohaodong.octopus.broker.store.subscription;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
+import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.Set;
@@ -14,8 +15,10 @@ public interface SubscriptionManager {
 
     boolean unSubscribe(String clientId, String topicFilter);
 
+    @Nullable
     Collection<Subscription> getAllMatched(String topicFilter);
 
+    @Nullable
     Collection<Subscription> getAllByClientId(String clientId);
 
     int unSubscribeAll(String clientId);
