@@ -14,7 +14,7 @@ class InMemorySubscriptionManagerTest {
 
     @BeforeEach
     void init() {
-        manager = new InMemorySubscriptionManager(new CTrieSubscriptionMatcher());
+        manager = new InMemorySubscriptionManager();
     }
 
     @Test

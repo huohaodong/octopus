@@ -13,4 +13,5 @@ public class BrokerConfig {
     private String id = "DEFAULT_BROKER_ID";
     private String host = "localhost";
     private int port = 20000;
+    private String storage = "local";
 }

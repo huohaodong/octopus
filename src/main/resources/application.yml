@@ -1,0 +1,11 @@
+spring:
+  redis:
+    host: 10.201.0.222
+    port: 22221
+    database: 0
+  octopus:
+    broker:
+      id: BROKER_1
+      host: localhost
+      port: 20000
+      storage: redis

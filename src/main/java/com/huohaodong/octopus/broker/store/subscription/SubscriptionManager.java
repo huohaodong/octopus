@@ -4,7 +4,6 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
-import java.util.Set;
 
 /*
  *  订阅关系管理器
@@ -21,7 +20,7 @@ public interface SubscriptionManager {
     @Nullable
     Collection<Subscription> getAllByClientId(String clientId);
 
-    int unSubscribeAll(String clientId);
+    void unSubscribeAll(String clientId);
 
     default boolean subscribe(String clientId, String topic) {
         return subscribe(new Subscription(clientId, topic));

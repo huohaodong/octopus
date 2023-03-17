@@ -1,19 +1,32 @@
 package com.huohaodong.octopus.broker.store.subscription;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+
+import java.io.Serializable;
 
 @Data
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class Subscription {
+public class Subscription implements Serializable {
 
-    private final String clientId;
+    private static final long serialVersionUID = 4809548486583011883L;
 
-    private final String topic;
+    private String clientId;
+
+    private String topic;
 
     private MqttQoS QoS;
 
+    public Subscription() {
+    }
+
+    public Subscription(String clientId, String topic) {
+        this.clientId = clientId;
+        this.topic = topic;
+    }
+
+    public Subscription(String clientId, String topic, MqttQoS QoS) {
+        this.clientId = clientId;
+        this.topic = topic;
+        this.QoS = QoS;
+    }
 }

@@ -29,15 +29,15 @@ import java.util.Collection;
 @Component
 public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage> {
 
-    private SessionManager sessionManager;
+    private final SessionManager sessionManager;
 
-    private SubscriptionManager subscriptionManager;
+    private final SubscriptionManager subscriptionManager;
 
-    private PublishMessageManager publishMessageManager;
+    private final PublishMessageManager publishMessageManager;
 
-    private RetainMessageManager retainMessageManager;
+    private final RetainMessageManager retainMessageManager;
 
-    private MessageIdGenerator idGenerator;
+    private final MessageIdGenerator idGenerator;
 
     public MqttPublishHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, RetainMessageManager retainMessageManager, MessageIdGenerator idGenerator) {
         this.sessionManager = sessionManager;
@@ -49,6 +49,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
 
     @Override
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
+        // TODO 重构实现，目前实现存在问题
         MqttQoS QoS = msg.fixedHeader().qosLevel();
         byte[] payload = new byte[msg.payload().readableBytes()];
         msg.payload().getBytes(msg.payload().readerIndex(), payload);
@@ -91,6 +92,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
     }
 
     private void sendPublishMessage(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup) {
+        // TODO 目前实现并不能保证中途掉线的节点重连后能收到 QoS >= 1 的消息
         Collection<Subscription> subscriptions = subscriptionManager.getAllMatched(topic);
         if (subscriptions == null) {
             return;
