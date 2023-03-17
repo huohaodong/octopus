@@ -14,4 +14,13 @@ public class BrokerConfig {
     private String host = "localhost";
     private int port = 20000;
     private String storage = "local";
+
+    @Getter
+    @Setter
+    public static class Storage {
+        private String session = "local";
+        private String retain = "local";
+        private String subscription = "local";
+        private String publish = "local";
+    }
 }

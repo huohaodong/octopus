@@ -8,4 +8,5 @@ spring:
       id: BROKER_1
       host: localhost
       port: 20000
-      storage: redis
+      storage:
+        subscription: redis

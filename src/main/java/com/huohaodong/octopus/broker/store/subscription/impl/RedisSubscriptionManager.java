@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnProperty(value = "spring.octopus.broker.storage", havingValue = "redis")
+@ConditionalOnProperty(value = "spring.octopus.broker.storage.subscription", havingValue = "redis")
 public class RedisSubscriptionManager implements SubscriptionManager {
 
     /* 每个 Topic 对应的所有符合条件的 Subscription (ClientId 和 Topic) */

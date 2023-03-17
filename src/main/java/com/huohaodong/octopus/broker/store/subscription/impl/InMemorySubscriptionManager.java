@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-@ConditionalOnProperty(value = "spring.octopus.broker.storage", havingValue = "local", matchIfMissing = true)
+@ConditionalOnProperty(value = "spring.octopus.broker.storage.subscription", havingValue = "local", matchIfMissing = true)
 public class InMemorySubscriptionManager implements SubscriptionManager {
 
     /* 每个 Topic 对应的所有符合条件的 Subscription (ClientId 和 Topic) */
