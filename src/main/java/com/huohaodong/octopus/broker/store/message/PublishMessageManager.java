@@ -14,7 +14,7 @@ public interface PublishMessageManager {
     @Nullable
     PublishMessage get(String clientId, int messageId);
 
-    boolean remove(String clientId, int messageId);
+    void remove(String clientId, int messageId);
 
     int removeAllByClientId(String clientId);
 

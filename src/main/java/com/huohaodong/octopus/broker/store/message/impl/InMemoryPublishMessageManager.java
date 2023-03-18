@@ -2,6 +2,7 @@ package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -10,12 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
+@ConditionalOnProperty(value = "spring.octopus.broker.storage.publish", havingValue = "local", matchIfMissing = true)
 public class InMemoryPublishMessageManager implements PublishMessageManager {
 
     /* ClientId -> Message */
-    ConcurrentHashMap<String, List<PublishMessage>> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, List<PublishMessage>> map = new ConcurrentHashMap<>();
 
-    DefaultMessageIdGenerator idGenerator;
+    private final DefaultMessageIdGenerator idGenerator;
 
     public InMemoryPublishMessageManager(DefaultMessageIdGenerator idGenerator) {
         this.idGenerator = idGenerator;
@@ -46,20 +48,17 @@ public class InMemoryPublishMessageManager implements PublishMessageManager {
     }
 
     @Override
-    public boolean remove(String clientId, int messageId) {
+    public void remove(String clientId, int messageId) {
         if (!map.containsKey(clientId)) {
-            return false;
+            return;
         }
         idGenerator.releaseId(messageId);
-        return map.get(clientId).removeIf(message -> message.getMessageId() == messageId);
+        map.get(clientId).removeIf(message -> message.getMessageId() == messageId);
     }
 
     @Override
     // TODO 释放 message id 的操作是否需要放到 PublishMessageManager 里面
     public int removeAllByClientId(String clientId) {
-        if (!map.containsKey(clientId)) {
-            return 0;
-        }
         Collection<PublishMessage> messages = map.remove(clientId);
         if (messages != null) {
             messages.forEach(msg -> idGenerator.releaseId(msg.getMessageId()));
