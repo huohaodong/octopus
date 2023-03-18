@@ -11,3 +11,4 @@ spring:
       port: 20000
       storage:
         subscription: redis
+        retain: redis

@@ -11,8 +11,7 @@ public interface RetainMessageManager {
     @Nullable
     RetainMessage get(String topic);
 
-    @Nullable
-    RetainMessage remove(String topic);
+    void remove(String topic);
 
     boolean contains(String topic);
 

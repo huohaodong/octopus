@@ -1,51 +1,79 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
+import com.google.gson.Gson;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnProperty(value = "spring.octopus.broker.storage.retain", havingValue = "local", matchIfMissing = true)
-public class InMemoryRetainMessageManager implements RetainMessageManager {
+@ConditionalOnProperty(value = "spring.octopus.broker.storage.retain", havingValue = "redis")
+public class RedisRetainMessageManager implements RetainMessageManager {
 
-    private final ConcurrentHashMap<String, RetainMessage> map = new ConcurrentHashMap<>();
+    private final RedisTemplate<String, RetainMessage> redisTemplate = new RedisTemplate<>();
+
+    private final Gson GSON = new Gson();
+
+    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:RETAIN")
+    private String RETAIN_PREFIX;
+
+    public RedisRetainMessageManager(RedisConnectionFactory connectionFactory) {
+        this.redisTemplate.setConnectionFactory(connectionFactory);
+        RedisSerializer<String> stringSerializer = new StringRedisSerializer();
+        this.redisTemplate.setDefaultSerializer(stringSerializer);
+        this.redisTemplate.setEnableDefaultSerializer(true);
+        this.redisTemplate.afterPropertiesSet();
+    }
 
     @Override
     public void put(String topic, RetainMessage message) {
-        map.put(topic, message);
+        redisTemplate.opsForHash().put(KEY(), topic, GSON.toJson(message));
     }
 
     @Override
     public RetainMessage get(String topic) {
-        return map.get(topic);
+        return GSON.fromJson((String) redisTemplate.opsForHash().get(KEY(), topic), RetainMessage.class);
     }
 
     @Override
     public void remove(String topic) {
-        map.remove(topic);
+        redisTemplate.opsForHash().delete(KEY(), topic);
     }
 
     @Override
     public boolean contains(String topic) {
-        return map.containsKey(topic);
+        return redisTemplate.opsForHash().hasKey(KEY(), topic);
+    }
+
+    public Collection<RetainMessage> getAll() {
+        return redisTemplate.opsForHash().values(KEY())
+                .stream()
+                .map(o -> GSON.fromJson((String) o, RetainMessage.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Collection<RetainMessage> getAllMatched(String topicFilter) {
         Set<RetainMessage> retainMessages = new HashSet<>();
         if (!topicFilter.contains("#") && !topicFilter.contains("+")) {
-            if (map.containsKey(topicFilter)) {
-                retainMessages.add(map.get(topicFilter));
+            RetainMessage message = get(topicFilter);
+            if (message != null) {
+                retainMessages.add(message);
             }
         } else {
-            map.forEach((topic, retainMessage) -> {
+            getAll().forEach(retainMessage -> {
                 {
+                    String topic = retainMessage.getTopic();
                     String[] splitTopics = topic.split("/");
                     String[] splitTopicFilters = topicFilter.split("/");
                     if (splitTopics.length >= splitTopicFilters.length) {
@@ -74,6 +102,10 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
 
     @Override
     public int size() {
-        return map.size();
+        return Math.toIntExact(redisTemplate.opsForHash().size(KEY()));
+    }
+
+    private String KEY() {
+        return RETAIN_PREFIX;
     }
 }

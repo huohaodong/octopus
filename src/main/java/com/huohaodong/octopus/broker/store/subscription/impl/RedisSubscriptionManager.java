@@ -23,10 +23,9 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
     /*每个 clientId 对应的订阅信息 */
     private final RedisTemplate<String, Subscription> redisTemplate = new RedisTemplate<>();
-    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}")
-    private String PREFIX;
-
     private final Gson GSON = new Gson();
+    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:SUB:")
+    private String SUB_PREFIX;
 
     public RedisSubscriptionManager(RedisConnectionFactory connectionFactory) {
         this.redisTemplate.setConnectionFactory(connectionFactory);
@@ -78,6 +77,6 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     }
 
     private String KEY(String clientId) {
-        return PREFIX + ":" + clientId;
+        return SUB_PREFIX + clientId;
     }
 }
