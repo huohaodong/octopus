@@ -55,6 +55,7 @@ public class InMemoryPublishMessageManager implements PublishMessageManager {
     }
 
     @Override
+    // TODO 释放 message id 的操作是否需要放到 PublishMessageManager 里面
     public int removeAllByClientId(String clientId) {
         if (!map.containsKey(clientId)) {
             return 0;

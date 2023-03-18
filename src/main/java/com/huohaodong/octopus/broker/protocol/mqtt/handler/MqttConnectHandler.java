@@ -72,6 +72,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
         // 如果会话中已存储这个新连接的clientId, 就关闭之前该clientId的连接
         if (sessionManager.contains(clientId)) {
+            // TODO 查询持久化的连接，发现重复则踢人，踢人也需要注意在集群间广播消息
             log.info("Duplicated connection of client {}, close connection", clientId);
             Session session = sessionManager.get(clientId);
             Channel previous = session.getChannel();
