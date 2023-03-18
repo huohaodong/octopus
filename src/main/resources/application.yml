@@ -5,7 +5,8 @@ spring:
     database: 0
   octopus:
     broker:
-      id: BROKER_1
+      group: group1
+      id: broker1
       host: localhost
       port: 20000
       storage:

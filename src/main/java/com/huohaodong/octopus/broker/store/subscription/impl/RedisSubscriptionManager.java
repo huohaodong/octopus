@@ -23,7 +23,7 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
     /*每个 clientId 对应的订阅信息 */
     private final RedisTemplate<String, Subscription> redisTemplate = new RedisTemplate<>();
-    @Value("${spring.octopus.broker.id:DEFAULT_BROKER_ID}")
+    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}")
     private String PREFIX;
 
     private final Gson GSON = new Gson();

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "spring.octopus.broker")
 public class BrokerConfig {
     private String id = "DEFAULT_BROKER_ID";
+    private String group = "DEFAULT_BROKER_GROUP";
     private String host = "localhost";
     private int port = 20000;
     private String storage = "local";
