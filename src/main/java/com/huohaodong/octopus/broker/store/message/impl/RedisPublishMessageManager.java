@@ -62,7 +62,7 @@ public class RedisPublishMessageManager implements PublishMessageManager {
     @Override
     public int removeAllByClientId(String clientId) {
         Collection<PublishMessage> messages = getAllByClientId(clientId);
-        if (messages != null) {
+        if (messages != null && messages.size() > 0) {
             messages.forEach(msg -> idGenerator.releaseId(msg.getMessageId()));
             return Math.toIntExact(redisTemplate.opsForHash().delete(KEY(clientId)));
         }
