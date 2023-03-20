@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CTrieTest {
 
-    private CTrie sut;
+    private CTrie sut = new CTrie();
 
     @BeforeEach
     public void setUp() {
