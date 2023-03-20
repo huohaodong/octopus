@@ -71,7 +71,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
             }
         }
 
-        clusterEventManager.broadcast(new PublishMessage(
+        clusterEventManager.broadcastToPublish(new PublishMessage(
                 brokerConfig.getId(),
                 0,
                 msg.variableHeader().topicName(),

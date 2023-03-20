@@ -1,5 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
+import com.huohaodong.octopus.broker.config.BrokerConfig;
+import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
 import com.huohaodong.octopus.broker.store.session.Session;
@@ -20,16 +22,19 @@ import java.util.Collection;
 @Component
 public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
 
-    private SessionManager sessionManager;
+    private final SessionManager sessionManager;
 
-    private SubscriptionManager subscriptionManager;
+    private final SubscriptionManager subscriptionManager;
 
-    private PublishMessageManager publishMessageManager;
+    private final PublishMessageManager publishMessageManager;
 
-    public MqttConnectHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager) {
+    private final ClusterEventManager clusterEventManager;
+
+    public MqttConnectHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager) {
         this.sessionManager = sessionManager;
         this.subscriptionManager = subscriptionManager;
         this.publishMessageManager = publishMessageManager;
+        this.clusterEventManager = clusterEventManager;
     }
 
     @Override
@@ -78,6 +83,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
                 publishMessageManager.removeAllByClientId(clientId);
             }
             previous.close();
+            clusterEventManager.broadcastToClose(clientId);
         }
 
         Session session = new Session(msg.payload().clientIdentifier(), channel, msg.variableHeader().isCleanSession(), null);
@@ -106,7 +112,6 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
         if (!session.isCleanSession()) {
             Collection<PublishMessage> messages = publishMessageManager.getAllByClientId(clientId);
-            // TODO 改为 Optional 接口
             if (messages != null) {
                 messages.forEach(message -> {
                     if (message.getType().equals(MqttMessageType.PUBLISH)) {

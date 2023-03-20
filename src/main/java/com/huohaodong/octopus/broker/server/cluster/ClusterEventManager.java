@@ -4,8 +4,8 @@ import com.huohaodong.octopus.broker.store.message.PublishMessage;
 
 public interface ClusterEventManager {
 
-    void broadcast(PublishMessage message);
+    void broadcastToPublish(PublishMessage message);
 
-    void closeByClientId(ClusterMessageIdentity identity, String ClientId);
+    void broadcastToClose(String clientToClose);
 
 }

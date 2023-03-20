@@ -1,7 +1,6 @@
 package com.huohaodong.octopus.broker.server.cluster;
 
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
-import io.netty.handler.codec.mqtt.MqttMessage;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -15,9 +14,9 @@ public class ClusterPublishMessage implements Serializable {
 
     private static final long serialVersionUID = -289323607827073890L;
 
-    private ClusterMessageIdentity identity;
+    private final ClusterMessageIdentity identity;
 
-    private PublishMessage payload;
+    private final PublishMessage payload;
 
     public ClusterPublishMessage(ClusterMessageIdentity identity, PublishMessage payload) {
         this.identity = identity;
