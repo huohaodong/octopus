@@ -1,10 +1,10 @@
 package com.huohaodong.octopus.broker.server.cluster;
 
-import io.netty.handler.codec.mqtt.MqttMessage;
+import com.huohaodong.octopus.broker.store.message.PublishMessage;
 
 public interface ClusterEventManager {
 
-    void broadcast(ClusterMessageIdentity identity, MqttMessage message);
+    void broadcast(PublishMessage message);
 
     void closeByClientId(ClusterMessageIdentity identity, String ClientId);
 
