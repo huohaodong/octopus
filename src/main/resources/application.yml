@@ -1,8 +1,6 @@
 spring:
-  redis:
-    host: 10.201.0.222
-    port: 22221
-    database: 0
+  application:
+    name: ${spring.octopus.broker.group}-${spring.octopus.broker.id}
   octopus:
     broker:
       group: group1
@@ -13,3 +11,7 @@ spring:
         retain: redis
         publish: redis
         subscription: redis
+  redis:
+    host: 10.201.0.222
+    port: 22221
+    database: 0

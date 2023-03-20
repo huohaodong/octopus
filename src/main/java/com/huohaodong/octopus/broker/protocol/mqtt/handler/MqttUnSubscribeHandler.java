@@ -22,10 +22,9 @@ public class MqttUnSubscribeHandler implements MqttPacketHandler<MqttUnsubscribe
     @Override
     public void doProcess(ChannelHandlerContext ctx, MqttUnsubscribeMessage msg) {
         List<String> topicFilters = msg.payload().topics();
-        String clinetId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
+        String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
         topicFilters.forEach(topicFilter -> {
-            subscriptionManager.unSubscribe(clinetId, topicFilter);
-            log.debug("UNSUBSCRIBE - clientId: {}, topicFilter: {}", clinetId, topicFilter);
+            subscriptionManager.unSubscribe(clientId, topicFilter);
         });
         MqttUnsubAckMessage unsubAckMessage = (MqttUnsubAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),

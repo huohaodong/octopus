@@ -27,7 +27,6 @@ public class MqttPubRecHandler implements MqttPacketHandler<MqttMessage> {
         MqttMessage pubRelMessage = MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
-        log.debug("PUBREC - clientId: {}, messageId: {}", clientId, messageId);
 
         publishMessageManager.remove(clientId, messageId);
         PublishMessage message = new PublishMessage(clientId, messageId);

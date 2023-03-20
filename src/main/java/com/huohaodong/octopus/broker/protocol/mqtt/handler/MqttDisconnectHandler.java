@@ -34,7 +34,6 @@ public class MqttDisconnectHandler implements MqttPacketHandler<MqttMessage> {
             subscriptionManager.unSubscribeAll(clientId);
             publishMessageManager.removeAllByClientId(clientId);
         }
-        log.debug("DISCONNECT - clientId: {}, cleanSession: {}", clientId, session.isCleanSession());
         sessionManager.remove(clientId);
         ctx.channel().close();
     }

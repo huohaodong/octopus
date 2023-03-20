@@ -17,9 +17,8 @@ public class MqttPubRelHandler implements MqttPacketHandler<MqttMessage> {
         int messageId = header.messageId();
 
         MqttMessage pubCompMessage = MqttMessageFactory.newMessage(new MqttFixedHeader(MqttMessageType.PUBCOMP,
-                false, MqttQoS.AT_MOST_ONCE, false, 0),
+                        false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
-        log.debug("PUBREL - clientId: {}, messageId: {}", clientId, messageId);
 
         ctx.channel().writeAndFlush(pubCompMessage);
     }
