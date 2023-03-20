@@ -35,7 +35,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
     @Override
     public void doProcess(ChannelHandlerContext ctx, MqttConnectMessage msg) {
         Channel channel = ctx.channel();
-        // 解码器异常
+
         if (msg.decoderResult().isFailure()) {
             Throwable cause = msg.decoderResult().cause();
             MqttConnectReturnCode returnCode = null;
@@ -56,7 +56,6 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             return;
         }
 
-        // clientId为空或null的情况, 这里要求客户端必须提供clientId, 不管cleanSession是否为1, 此处没有参考标准协议实现
         String clientId = msg.payload().clientIdentifier();
         if (clientId.isEmpty()) {
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
@@ -67,10 +66,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             return;
         }
         // TODO Auth
-        // 用户名和密码验证, 这里要求客户端连接时必须提供用户名和密码, 不管是否设置用户名标志和密码标志为1, 此处没有参考标准协议实现
 
-
-        // 如果会话中已存储这个新连接的clientId, 就关闭之前该clientId的连接
         if (sessionManager.contains(clientId)) {
             // TODO 查询持久化的连接，发现重复则踢人，踢人也需要注意在集群间广播消息
             log.info("Duplicated connection of client {}, close connection", clientId);
@@ -84,7 +80,6 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             previous.close();
         }
 
-        // 处理遗嘱信息
         Session session = new Session(msg.payload().clientIdentifier(), channel, msg.variableHeader().isCleanSession(), null);
         if (msg.variableHeader().isWillFlag()) {
             MqttPublishMessage willMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
@@ -94,7 +89,6 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         }
         sessionManager.put(clientId, session);
 
-        // 处理心跳包
         if (msg.variableHeader().keepAliveTimeSeconds() > 0) {
             if (channel.pipeline().names().contains("heartbeat")) {
                 channel.pipeline().remove("heartbeat");
@@ -102,17 +96,14 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             channel.pipeline().addLast("heartbeat", new IdleStateHandler(0, 0, Math.round(msg.variableHeader().keepAliveTimeSeconds() * 1.5f)));
         }
 
-        // 存储 clientId 到对应的 channel 中
         channel.attr(AttributeKey.valueOf("CLIENT_ID")).set(clientId);
 
-        Boolean sessionPresent = sessionManager.contains(clientId) && !session.isCleanSession();
+        boolean sessionPresent = sessionManager.contains(clientId) && !session.isCleanSession();
         MqttConnAckMessage connAck = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
         channel.writeAndFlush(connAck);
 
-        log.debug("CONNECT - clientId: {}, cleanSession: {}", session.getClientId(), session.isCleanSession());
-        // 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
         if (!session.isCleanSession()) {
             Collection<PublishMessage> messages = publishMessageManager.getAllByClientId(clientId);
             // TODO 改为 Optional 接口
@@ -129,7 +120,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
                                 MqttMessageIdVariableHeader.from(message.getMessageId()), null);
                         channel.writeAndFlush(pubRelMessage);
                     } else {
-                        log.warn("CONNECT - unknown duplicate message type {}", message.getType());
+                        log.warn("Unknown Message Type: {}", message.getType());
                     }
                 });
             }

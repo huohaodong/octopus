@@ -67,7 +67,6 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     @Override
     public void unSubscribeAll(String clientId) {
         Collection<Subscription> subscriptions = getAllByClientId(clientId);
-        System.out.println(subscriptions);
         if (subscriptions != null) {
             for (Subscription sub : subscriptions) {
                 unSubscribe(sub);

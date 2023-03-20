@@ -23,7 +23,6 @@ public class MqttPubCompHandler implements MqttPacketHandler<MqttMessage> {
         MqttMessageIdVariableHeader header = (MqttMessageIdVariableHeader) msg.variableHeader();
         int messageId = header.messageId();
         String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
-        log.debug("PUBCOMP - clientId: {}, messageId: {}", clientId, messageId);
         publishMessageManager.remove(clientId, messageId);
     }
 }

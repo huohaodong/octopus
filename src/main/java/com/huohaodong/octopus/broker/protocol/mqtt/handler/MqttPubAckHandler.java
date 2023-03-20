@@ -21,7 +21,6 @@ public class MqttPubAckHandler implements MqttPacketHandler<MqttPubAckMessage> {
     public void doProcess(ChannelHandlerContext ctx, MqttPubAckMessage msg) {
         int messageId = msg.variableHeader().messageId();
         String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
-        log.debug("PUBACK - clientId: {}, messageId: {}", clientId, messageId);
         publishMessageManager.remove(clientId, messageId);
     }
 }
