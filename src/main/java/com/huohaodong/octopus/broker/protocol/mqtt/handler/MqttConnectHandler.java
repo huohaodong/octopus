@@ -83,12 +83,12 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             // TODO 查询持久化的连接，发现重复则踢人，踢人也需要注意在集群间广播消息
             log.info("Duplicated connection of client {}, close connection", clientId);
             Session session = sessionManager.get(clientId);
+            Channel previous = channelManager.getChannel(clientId);
             if (session.isCleanSession()) {
                 sessionManager.remove(clientId);
                 subscriptionManager.unSubscribeAll(clientId);
                 publishMessageManager.removeAllByClientId(clientId);
             }
-            Channel previous = channelManager.getChannel(session.getClientId());
             if (previous != null) {
                 previous.close();
             }

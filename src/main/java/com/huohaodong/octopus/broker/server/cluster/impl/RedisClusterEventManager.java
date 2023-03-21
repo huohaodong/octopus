@@ -156,16 +156,15 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
 
     private void closeChannelByClientId(String clientId) {
         Session session = sessionManager.get(clientId);
-        System.out.println(session);
         if (session == null) {
             return;
         }
-        sessionManager.remove(clientId);
         if (session.isCleanSession()) {
             subscriptionManager.unSubscribeAll(clientId);
             publishMessageManager.removeAllByClientId(clientId);
         }
         Channel channel = channelManager.getChannel(session.getClientId());
+        sessionManager.remove(clientId);
         if (channel != null) {
             channel.writeAndFlush(MqttMessage.DISCONNECT).addListener((ChannelFutureListener) future -> channel.close());
         }
