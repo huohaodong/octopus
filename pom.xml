@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.huohaodong</groupId>
     <artifactId>octopus</artifactId>
-    <version>0.5.0</version>
+    <version>0.9.0</version>
     <name>Octopus</name>
     <description>Octopus</description>
     <url>https://github.com/huohaodong/octopus</url>
@@ -70,6 +70,13 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
