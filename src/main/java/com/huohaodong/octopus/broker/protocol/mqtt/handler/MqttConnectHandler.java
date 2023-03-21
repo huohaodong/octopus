@@ -7,6 +7,7 @@ import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
+import com.huohaodong.octopus.broker.store.session.WillMessage;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -79,8 +80,8 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         }
         // TODO Auth
 
+        // 关闭本 Broker 内部重复的连接
         if (sessionManager.contains(clientId)) {
-            // TODO 查询持久化的连接，发现重复则踢人，踢人也需要注意在集群间广播消息
             log.info("Duplicated connection of client {}, close connection", clientId);
             Session session = sessionManager.get(clientId);
             Channel previous = channelManager.getChannel(clientId);
@@ -92,14 +93,19 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             if (previous != null) {
                 previous.close();
             }
-            clusterEventManager.broadcastToClose(clientId);
         }
+        // 关闭同一组 Broker Group 内部的其他 Broker 上的重复连接
+        clusterEventManager.broadcastToClose(clientId);
 
         Session session = new Session(brokerConfig.getGroup(), brokerConfig.getId(), clientId, ctx.channel().id(), msg.variableHeader().isCleanSession(), null);
+
         if (msg.variableHeader().isWillFlag()) {
-            MqttPublishMessage willMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.valueOf(msg.variableHeader().willQos()), msg.variableHeader().isWillRetain(), 0),
-                    new MqttPublishVariableHeader(msg.payload().willTopic(), 0), Unpooled.buffer().writeBytes(msg.payload().willMessageInBytes()));
+            WillMessage willMessage = new WillMessage(
+                    msg.payload().willTopic(),
+                    MqttQoS.valueOf(msg.variableHeader().willQos()),
+                    msg.payload().willMessageInBytes().clone(),
+                    msg.variableHeader().isWillRetain()
+                    );
             session.setWillMessage(willMessage);
         }
         sessionManager.put(clientId, session);

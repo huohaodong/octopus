@@ -1,7 +1,6 @@
 package com.huohaodong.octopus.broker.store.session;
 
 import io.netty.channel.ChannelId;
-import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -23,6 +22,6 @@ public class Session implements Serializable {
 
     private boolean cleanSession;
 
-    private MqttPublishMessage willMessage;
+    private WillMessage willMessage;
 
 }

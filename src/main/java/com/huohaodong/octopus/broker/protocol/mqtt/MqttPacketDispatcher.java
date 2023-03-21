@@ -4,17 +4,16 @@ import com.huohaodong.octopus.broker.protocol.mqtt.handler.*;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
+import com.huohaodong.octopus.broker.store.session.WillMessage;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.UnsupportedMessageTypeException;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -122,7 +121,11 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
                 if (sessionManager.contains(clientId)) {
                     Session session = sessionManager.get(clientId);
                     if (session.getWillMessage() != null) {
-                        mqttPublishHandler.doProcess(ctx, session.getWillMessage());
+                        WillMessage willMessage = session.getWillMessage();
+                        MqttPublishMessage mqttWillMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                                new MqttFixedHeader(MqttMessageType.PUBLISH, false, willMessage.getQoS(), willMessage.isRetain(), 0),
+                                new MqttPublishVariableHeader(willMessage.getTopic(), 0), Unpooled.buffer().writeBytes(willMessage.getPayload()));
+                        mqttPublishHandler.doProcess(ctx, mqttWillMessage);
                     }
                 }
                 ctx.close();

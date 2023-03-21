@@ -7,11 +7,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@ConditionalOnProperty(value = "spring.octopus.broker.storage.session", havingValue = "local", matchIfMissing = true)
 public class InMemorySessionManager implements SessionManager, ChannelManager {
 
     private final ConcurrentHashMap<String, Session> map = new ConcurrentHashMap<>();
@@ -29,8 +31,8 @@ public class InMemorySessionManager implements SessionManager, ChannelManager {
     }
 
     @Override
-    public Session remove(String clientId) {
-        return map.remove(clientId);
+    public void remove(String clientId) {
+        map.remove(clientId);
     }
 
     @Override

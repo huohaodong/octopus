@@ -9,8 +9,7 @@ public interface SessionManager {
     @Nullable
     Session get(String clientId);
 
-    @Nullable
-    Session remove(String clientId);
+    void remove(String clientId);
 
     boolean contains(String clientId);
 

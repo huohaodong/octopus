@@ -11,6 +11,7 @@ spring:
         retain: redis
         publish: redis
         subscription: redis
+        session: redis
   redis:
     host: 10.201.0.222
     port: 22221
