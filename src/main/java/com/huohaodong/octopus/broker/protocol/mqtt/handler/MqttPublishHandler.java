@@ -3,6 +3,7 @@ package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 import com.huohaodong.octopus.broker.config.BrokerConfig;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.store.message.*;
+import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
 import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
@@ -10,14 +11,18 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
 @Slf4j
+@AllArgsConstructor
 @Component
 public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage> {
+
+    private final ChannelManager channelManager;
 
     private final SessionManager sessionManager;
 
@@ -32,16 +37,6 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
     private final ClusterEventManager clusterEventManager;
 
     private final BrokerConfig brokerConfig;
-
-    public MqttPublishHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, RetainMessageManager retainMessageManager, MessageIdGenerator idGenerator, ClusterEventManager clusterEventManager, BrokerConfig brokerConfig) {
-        this.sessionManager = sessionManager;
-        this.subscriptionManager = subscriptionManager;
-        this.publishMessageManager = publishMessageManager;
-        this.retainMessageManager = retainMessageManager;
-        this.idGenerator = idGenerator;
-        this.clusterEventManager = clusterEventManager;
-        this.brokerConfig = brokerConfig;
-    }
 
     @Override
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
@@ -123,7 +118,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
                     publishMessageManager.put(new PublishMessage(subscription.getClientId(), messageId, topic, respQoS, messageBytes, MqttMessageType.PUBREL));
                 }
                 if (publishMessage != null) {
-                    Channel channel = sessionManager.get(subscription.getClientId()).getChannel();
+                    Channel channel = channelManager.getChannel(subscription.getClientId());
                     if (channel != null) {
                         channel.writeAndFlush(publishMessage);
                     }

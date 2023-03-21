@@ -8,11 +8,13 @@ import com.huohaodong.octopus.broker.server.cluster.ClusterMessageIdentity;
 import com.huohaodong.octopus.broker.server.cluster.ClusterPublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
+import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
 import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.mqtt.*;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +35,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RedisClusterEventManager implements MessageListener, ClusterEventManager {
 
+    private final BrokerConfig brokerConfig;
+
     private final Gson GSON = new Gson();
 
     private final int MAX_MESSAGE_ID = 65535;
 
     private final AtomicInteger CLUSTER_MESSAGE_ID = new AtomicInteger(0);
-
-    private final BrokerConfig brokerConfig;
 
     private final RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
 
@@ -51,6 +53,8 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
 
     private final PublishMessageManager publishMessageManager;
 
+    private final ChannelManager channelManager;
+
     @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:PUB:BRIDGE")
     private String PUB_BRIDGE_TOPIC;
 
@@ -59,10 +63,11 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
 
     public RedisClusterEventManager(StringRedisTemplate stringRedisTemplate, RedisConnectionFactory connectionFactory,
                                     BrokerConfig brokerConfig, SubscriptionManager subscriptionManager,
-                                    SessionManager sessionManager, PublishMessageManager publishMessageManager) {
+                                    SessionManager sessionManager, PublishMessageManager publishMessageManager, ChannelManager channelManager) {
         this.brokerConfig = brokerConfig;
         this.redisTemplate = stringRedisTemplate;
         this.publishMessageManager = publishMessageManager;
+        this.channelManager = channelManager;
         this.listenerContainer.setConnectionFactory(connectionFactory);
         this.listenerContainer.afterPropertiesSet();
         this.subscriptionManager = subscriptionManager;
@@ -140,7 +145,10 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
                         new MqttPublishVariableHeader(topic, 0), Unpooled.buffer().writeBytes(payload));
                 Session session = sessionManager.get(subscription.getClientId());
                 if (session != null) {
-                    session.getChannel().writeAndFlush(publishMessage);
+                    Channel channel = channelManager.getChannel(session.getClientId());
+                    if (channel != null) {
+                        channel.writeAndFlush(publishMessage);
+                    }
                 }
             }
         });
@@ -157,7 +165,10 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
             subscriptionManager.unSubscribeAll(clientId);
             publishMessageManager.removeAllByClientId(clientId);
         }
-        session.getChannel().writeAndFlush(MqttMessage.DISCONNECT).addListener((ChannelFutureListener) future -> session.getChannel().close());
+        Channel channel = channelManager.getChannel(session.getClientId());
+        if (channel != null) {
+            channel.writeAndFlush(MqttMessage.DISCONNECT).addListener((ChannelFutureListener) future -> channel.close());
+        }
     }
 
     // TODO 添加鉴权逻辑

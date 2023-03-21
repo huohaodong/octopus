@@ -1,16 +1,20 @@
 package com.huohaodong.octopus.broker.protocol.mqtt;
 
 import com.huohaodong.octopus.broker.protocol.mqtt.handler.*;
+import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.UnsupportedMessageTypeException;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,6 +26,9 @@ import java.io.IOException;
 @Component
 @ChannelHandler.Sharable
 public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessage> {
+
+    private final ChannelManager channelManager;
+
     private final SessionManager sessionManager;
 
     private final MqttConnectHandler mqttConnectHandler;
@@ -45,9 +52,14 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
     private final MqttDisconnectHandler mqttDisconnectHandler;
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        channelManager.addChannel(ctx.channel());
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) throws Exception {
         MqttMessageType msgType = msg.fixedHeader().messageType();
-        log.info("received {} message", msgType);
+        log.info("Dispatcher received {} message", msgType);
         switch (msgType) {
             case CONNECT:
                 mqttConnectHandler.doProcess(ctx, (MqttConnectMessage) msg);

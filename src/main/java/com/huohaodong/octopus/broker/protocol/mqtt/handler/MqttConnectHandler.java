@@ -4,6 +4,7 @@ import com.huohaodong.octopus.broker.config.BrokerConfig;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
+import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
@@ -22,6 +23,8 @@ import java.util.Collection;
 @Component
 public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
 
+    private final BrokerConfig brokerConfig;
+
     private final SessionManager sessionManager;
 
     private final SubscriptionManager subscriptionManager;
@@ -30,11 +33,15 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
     private final ClusterEventManager clusterEventManager;
 
-    public MqttConnectHandler(SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager) {
+    private final ChannelManager channelManager;
+
+    public MqttConnectHandler(BrokerConfig brokerConfig, SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager, ChannelManager channelManager) {
+        this.brokerConfig = brokerConfig;
         this.sessionManager = sessionManager;
         this.subscriptionManager = subscriptionManager;
         this.publishMessageManager = publishMessageManager;
         this.clusterEventManager = clusterEventManager;
+        this.channelManager = channelManager;
     }
 
     @Override
@@ -76,17 +83,19 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             // TODO 查询持久化的连接，发现重复则踢人，踢人也需要注意在集群间广播消息
             log.info("Duplicated connection of client {}, close connection", clientId);
             Session session = sessionManager.get(clientId);
-            Channel previous = session.getChannel();
             if (session.isCleanSession()) {
                 sessionManager.remove(clientId);
                 subscriptionManager.unSubscribeAll(clientId);
                 publishMessageManager.removeAllByClientId(clientId);
             }
-            previous.close();
+            Channel previous = channelManager.getChannel(session.getClientId());
+            if (previous != null) {
+                previous.close();
+            }
             clusterEventManager.broadcastToClose(clientId);
         }
 
-        Session session = new Session(msg.payload().clientIdentifier(), channel, msg.variableHeader().isCleanSession(), null);
+        Session session = new Session(brokerConfig.getGroup(), brokerConfig.getId(), clientId, ctx.channel().id(), msg.variableHeader().isCleanSession(), null);
         if (msg.variableHeader().isWillFlag()) {
             MqttPublishMessage willMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.valueOf(msg.variableHeader().willQos()), msg.variableHeader().isWillRetain(), 0),
@@ -102,6 +111,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             channel.pipeline().addLast("heartbeat", new IdleStateHandler(0, 0, Math.round(msg.variableHeader().keepAliveTimeSeconds() * 1.5f)));
         }
 
+        // TODO 检查是否还需要这样实现
         channel.attr(AttributeKey.valueOf("CLIENT_ID")).set(clientId);
 
         boolean sessionPresent = sessionManager.contains(clientId) && !session.isCleanSession();
