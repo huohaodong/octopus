@@ -78,7 +78,18 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             channel.close();
             return;
         }
-        // TODO Auth
+
+        if (msg.variableHeader().hasUserName() && msg.variableHeader().hasPassword()) {
+            // TODO 验证用户名密码是否合理
+            // TODO 验证是否有权限访问本 broker，如果没有权限则返回 CONNECTION_REFUSED_NOT_AUTHORIZED
+        } else {
+            MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
+                    new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                    new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD, false), null);
+            channel.writeAndFlush(connAckMessage);
+            channel.close();
+            return;
+        }
 
         // 关闭本 Broker 内部重复的连接
         if (sessionManager.contains(clientId)) {
