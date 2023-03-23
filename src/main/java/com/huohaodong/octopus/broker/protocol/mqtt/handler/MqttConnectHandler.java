@@ -1,6 +1,6 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
-import com.huohaodong.octopus.broker.config.BrokerConfig;
+import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
@@ -24,7 +24,7 @@ import java.util.Collection;
 @Component
 public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
 
-    private final BrokerConfig brokerConfig;
+    private final BrokerProperties brokerProperties;
 
     private final SessionManager sessionManager;
 
@@ -36,8 +36,8 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
     private final ChannelManager channelManager;
 
-    public MqttConnectHandler(BrokerConfig brokerConfig, SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager, ChannelManager channelManager) {
-        this.brokerConfig = brokerConfig;
+    public MqttConnectHandler(BrokerProperties brokerProperties, SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager, ChannelManager channelManager) {
+        this.brokerProperties = brokerProperties;
         this.sessionManager = sessionManager;
         this.subscriptionManager = subscriptionManager;
         this.publishMessageManager = publishMessageManager;
@@ -108,7 +108,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         // 关闭同一组 Broker Group 内部的其他 Broker 上的重复连接
         clusterEventManager.broadcastToClose(clientId);
 
-        Session session = new Session(brokerConfig.getGroup(), brokerConfig.getId(), clientId, ctx.channel().id(), msg.variableHeader().isCleanSession(), null);
+        Session session = new Session(brokerProperties.getGroup(), brokerProperties.getId(), clientId, ctx.channel().id(), msg.variableHeader().isCleanSession(), null);
 
         if (msg.variableHeader().isWillFlag()) {
             WillMessage willMessage = new WillMessage(

@@ -1,6 +1,6 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
-import com.huohaodong.octopus.broker.config.BrokerConfig;
+import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.store.message.*;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
@@ -36,7 +36,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
 
     private final ClusterEventManager clusterEventManager;
 
-    private final BrokerConfig brokerConfig;
+    private final BrokerProperties brokerProperties;
 
     @Override
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
@@ -67,7 +67,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
         }
 
         clusterEventManager.broadcastToPublish(new PublishMessage(
-                brokerConfig.getId(),
+                brokerProperties.getId(),
                 0,
                 msg.variableHeader().topicName(),
                 MqttQoS.AT_MOST_ONCE,

@@ -1,6 +1,6 @@
 package com.huohaodong.octopus.broker.server;
 
-import com.huohaodong.octopus.broker.config.BrokerConfig;
+import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.protocol.mqtt.MqttPacketDispatcher;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 @Component
 public class BrokerInitializer {
 
-    BrokerConfig brokerConfig;
+    BrokerProperties brokerProperties;
 
     MqttPacketDispatcher mqttPacketDispatcher;
 
@@ -46,7 +46,7 @@ public class BrokerInitializer {
             }
         });
         try {
-            ChannelFuture cf = b.bind(new InetSocketAddress(brokerConfig.getHost(), brokerConfig.getPort())).sync();
+            ChannelFuture cf = b.bind(new InetSocketAddress(brokerProperties.getHost(), brokerProperties.getPort())).sync();
             InetSocketAddress socketAddress = (InetSocketAddress) cf.channel().localAddress();
             log.info("start octopus server, host: {}, port: {}", socketAddress.getAddress(), socketAddress.getPort());
             cf.channel().closeFuture().sync();

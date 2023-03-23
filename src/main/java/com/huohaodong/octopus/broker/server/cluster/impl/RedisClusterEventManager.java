@@ -1,7 +1,7 @@
 package com.huohaodong.octopus.broker.server.cluster.impl;
 
 import com.google.gson.Gson;
-import com.huohaodong.octopus.broker.config.BrokerConfig;
+import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.server.cluster.ClusterCloseChannelMessage;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
 import com.huohaodong.octopus.broker.server.cluster.ClusterMessageIdentity;
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RedisClusterEventManager implements MessageListener, ClusterEventManager {
 
-    private final BrokerConfig brokerConfig;
+    private final BrokerProperties brokerProperties;
 
     private final Gson GSON = new Gson();
 
@@ -62,9 +62,9 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
     private String CLOSE_BRIDGE_TOPIC;
 
     public RedisClusterEventManager(StringRedisTemplate stringRedisTemplate, RedisConnectionFactory connectionFactory,
-                                    BrokerConfig brokerConfig, SubscriptionManager subscriptionManager,
+                                    BrokerProperties brokerProperties, SubscriptionManager subscriptionManager,
                                     SessionManager sessionManager, PublishMessageManager publishMessageManager, ChannelManager channelManager) {
-        this.brokerConfig = brokerConfig;
+        this.brokerProperties = brokerProperties;
         this.redisTemplate = stringRedisTemplate;
         this.publishMessageManager = publishMessageManager;
         this.channelManager = channelManager;
@@ -108,7 +108,7 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
     @Override
     public void broadcastToPublish(PublishMessage message) {
         ClusterPublishMessage clusterBroadCastMessage = new ClusterPublishMessage(
-                ClusterMessageIdentity.of(nextMessageId(), brokerConfig.getGroup(), brokerConfig.getId()),
+                ClusterMessageIdentity.of(nextMessageId(), brokerProperties.getGroup(), brokerProperties.getId()),
                 message
         );
         redisTemplate.convertAndSend(PUB_BRIDGE_TOPIC, GSON.toJson(clusterBroadCastMessage));
@@ -117,7 +117,7 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
     @Override
     public void broadcastToClose(String clientToClose) {
         ClusterCloseChannelMessage clusterCloseChannelMessage = new ClusterCloseChannelMessage(
-                ClusterMessageIdentity.of(nextMessageId(), brokerConfig.getGroup(), brokerConfig.getId()),
+                ClusterMessageIdentity.of(nextMessageId(), brokerProperties.getGroup(), brokerProperties.getId()),
                 clientToClose
         );
         redisTemplate.convertAndSend(CLOSE_BRIDGE_TOPIC, GSON.toJson(clusterCloseChannelMessage));
@@ -173,7 +173,7 @@ public class RedisClusterEventManager implements MessageListener, ClusterEventMa
     // TODO 添加鉴权逻辑
     private boolean isValid(ClusterMessageIdentity identity) {
         // 消息处理条件：消息属于本 Broker Group 且不是自己发出的消息
-        return identity.getGroup().equals(brokerConfig.getGroup())
-                && !identity.getBrokerId().equals(brokerConfig.getId());
+        return identity.getGroup().equals(brokerProperties.getGroup())
+                && !identity.getBrokerId().equals(brokerProperties.getId());
     }
 }
