@@ -32,3 +32,9 @@ mqttx bench pub -c 2000 -t bench/%i -h localhost -p 20000 -q 2
 
 ![prometheus grafana](https://user-images.githubusercontent.com/42486690/227205714-9218fd04-0998-4626-a499-735b4438ea75.png)
 
+## 协议实现参考
+
+- mosquitto https://github.com/eclipse/mosquitto
+- rocketmq-mqtt https://github.com/apache/rocketmq-mqtt
+- iot-mqtt-server https://gitee.com/recallcode/iot-mqtt-server
+- jmqtt https://github.com/Cicizz/jmqtt
