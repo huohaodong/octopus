@@ -1,9 +1,9 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+
 @Service
 @ConditionalOnProperty(value = "spring.octopus.broker.storage.publish", havingValue = "redis")
 public class RedisPublishMessageManager implements PublishMessageManager {
+
+    private final StoreConfig storeConfig;
 
     private final RedisTemplate<String, PublishMessage> redisTemplate = new RedisTemplate<>();
 
@@ -24,10 +27,8 @@ public class RedisPublishMessageManager implements PublishMessageManager {
 
     private final Gson GSON = new Gson();
 
-    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:PUB:")
-    private String PUB_PREFIX;
-
-    public RedisPublishMessageManager(RedisConnectionFactory connectionFactory, DefaultMessageIdGenerator idGenerator) {
+    public RedisPublishMessageManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig, DefaultMessageIdGenerator idGenerator) {
+        this.storeConfig = storeConfig;
         this.redisTemplate.setConnectionFactory(connectionFactory);
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
         this.redisTemplate.setDefaultSerializer(stringSerializer);
@@ -71,10 +72,10 @@ public class RedisPublishMessageManager implements PublishMessageManager {
 
     @Override
     public int size() {
-        return Math.toIntExact(redisTemplate.opsForHash().keys(PUB_PREFIX + "*").size());
+        return Math.toIntExact(redisTemplate.opsForHash().keys(storeConfig.PUB_PREFIX + "*").size());
     }
 
     private String KEY(String clientId) {
-        return PUB_PREFIX + clientId;
+        return storeConfig.PUB_PREFIX + clientId;
     }
 }

@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.store.session.impl;
 
+import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
@@ -7,7 +8,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,14 +18,14 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(value = "spring.octopus.broker.storage.session", havingValue = "redis")
 public class RedisSessionManager implements SessionManager, ChannelManager {
 
+    private final StoreConfig storeConfig;
+
     private final ChannelGroup CHANNELS = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     private final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
-    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:SESSION:${spring.octopus.broker.id:DEFAULT_BROKER_ID}")
-    private String SESSION_PREFIX;
-
-    public RedisSessionManager(RedisConnectionFactory connectionFactory) {
+    public RedisSessionManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig) {
+        this.storeConfig = storeConfig;
         this.redisTemplate.setConnectionFactory(connectionFactory);
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         this.redisTemplate.setKeySerializer(stringRedisSerializer);
@@ -69,7 +69,7 @@ public class RedisSessionManager implements SessionManager, ChannelManager {
     }
 
     private String KEY() {
-        return SESSION_PREFIX;
+        return storeConfig.SESSION_PREFIX;
     }
 
 }

@@ -1,9 +1,9 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "spring.octopus.broker.storage.retain", havingValue = "redis")
 public class RedisRetainMessageManager implements RetainMessageManager {
 
+    private final StoreConfig storeConfig;
+
     private final RedisTemplate<String, RetainMessage> redisTemplate = new RedisTemplate<>();
 
     private final Gson GSON = new Gson();
 
-    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:RETAIN")
-    private String RETAIN_PREFIX;
-
-    public RedisRetainMessageManager(RedisConnectionFactory connectionFactory) {
+    public RedisRetainMessageManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig) {
+        this.storeConfig = storeConfig;
         this.redisTemplate.setConnectionFactory(connectionFactory);
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
         this.redisTemplate.setDefaultSerializer(stringSerializer);
@@ -106,6 +106,6 @@ public class RedisRetainMessageManager implements RetainMessageManager {
     }
 
     private String KEY() {
-        return RETAIN_PREFIX;
+        return storeConfig.RETAIN_PREFIX;
     }
 }

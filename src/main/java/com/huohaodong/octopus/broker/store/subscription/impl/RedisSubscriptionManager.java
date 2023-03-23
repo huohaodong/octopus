@@ -1,10 +1,10 @@
 package com.huohaodong.octopus.broker.store.subscription.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionMatcher;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,15 +19,16 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "spring.octopus.broker.storage.subscription", havingValue = "redis")
 public class RedisSubscriptionManager implements SubscriptionManager {
 
+    private final StoreConfig storeConfig;
+
     /* 每个 Topic 对应的所有符合条件的 Subscription (ClientId 和 Topic) */
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
     /*每个 clientId 对应的订阅信息 */
     private final RedisTemplate<String, Subscription> redisTemplate = new RedisTemplate<>();
     private final Gson GSON = new Gson();
-    @Value("${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:SUB:")
-    private String SUB_PREFIX;
 
-    public RedisSubscriptionManager(RedisConnectionFactory connectionFactory) {
+    public RedisSubscriptionManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig) {
+        this.storeConfig = storeConfig;
         this.redisTemplate.setConnectionFactory(connectionFactory);
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
         this.redisTemplate.setDefaultSerializer(stringSerializer);
@@ -81,6 +82,6 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     }
 
     private String KEY(String clientId) {
-        return SUB_PREFIX + clientId;
+        return storeConfig.SUB_PREFIX + clientId;
     }
 }
