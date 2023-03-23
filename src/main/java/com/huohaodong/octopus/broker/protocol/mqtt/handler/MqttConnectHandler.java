@@ -2,6 +2,8 @@ package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
+import com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric;
+import com.huohaodong.octopus.broker.server.metric.aspect.StatsCollector;
 import com.huohaodong.octopus.broker.store.message.PublishMessage;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
@@ -15,6 +17,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +25,7 @@ import java.util.Collection;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
 
     private final BrokerProperties brokerProperties;
@@ -36,16 +40,10 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
 
     private final ChannelManager channelManager;
 
-    public MqttConnectHandler(BrokerProperties brokerProperties, SessionManager sessionManager, SubscriptionManager subscriptionManager, PublishMessageManager publishMessageManager, ClusterEventManager clusterEventManager, ChannelManager channelManager) {
-        this.brokerProperties = brokerProperties;
-        this.sessionManager = sessionManager;
-        this.subscriptionManager = subscriptionManager;
-        this.publishMessageManager = publishMessageManager;
-        this.clusterEventManager = clusterEventManager;
-        this.channelManager = channelManager;
-    }
+    private final StatsCollector statsCollector;
 
     @Override
+    @ReceivedMetric
     public void doProcess(ChannelHandlerContext ctx, MqttConnectMessage msg) {
         Channel channel = ctx.channel();
 
@@ -63,6 +61,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
                 MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                         new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                         new MqttConnAckVariableHeader(returnCode, false), null);
+                statsCollector.getDeltaTotalSent().incrementAndGet();
                 channel.writeAndFlush(connAckMessage);
             }
             channel.close();
@@ -74,6 +73,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                     new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
+            statsCollector.getDeltaTotalSent().incrementAndGet();
             channel.writeAndFlush(connAckMessage);
             channel.close();
             return;
@@ -86,6 +86,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                     new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD, false), null);
+            statsCollector.getDeltaTotalSent().incrementAndGet();
             channel.writeAndFlush(connAckMessage);
             channel.close();
             return;
@@ -116,7 +117,7 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
                     MqttQoS.valueOf(msg.variableHeader().willQos()),
                     msg.payload().willMessageInBytes().clone(),
                     msg.variableHeader().isWillRetain()
-                    );
+            );
             session.setWillMessage(willMessage);
         }
         sessionManager.put(clientId, session);
@@ -135,12 +136,14 @@ public class MqttConnectHandler implements MqttPacketHandler<MqttConnectMessage>
         MqttConnAckMessage connAck = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
+        statsCollector.getDeltaTotalSent().incrementAndGet();
         channel.writeAndFlush(connAck);
 
         if (!session.isCleanSession()) {
             Collection<PublishMessage> messages = publishMessageManager.getAllByClientId(clientId);
             if (messages != null) {
                 messages.forEach(message -> {
+                    statsCollector.getDeltaTotalSent().incrementAndGet();
                     if (message.getType().equals(MqttMessageType.PUBLISH)) {
                         MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                                 new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQoS(), false, 0),

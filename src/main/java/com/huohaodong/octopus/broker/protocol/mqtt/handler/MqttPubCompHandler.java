@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
+import com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -19,6 +20,7 @@ public class MqttPubCompHandler implements MqttPacketHandler<MqttMessage> {
     }
 
     @Override
+    @ReceivedMetric
     public void doProcess(ChannelHandlerContext ctx, MqttMessage msg) {
         MqttMessageIdVariableHeader header = (MqttMessageIdVariableHeader) msg.variableHeader();
         int messageId = header.messageId();

@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.server.metric.aspect;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,8 +18,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Aspect
+@Getter
 @Component
-public class StatsAspect {
+public class StatsCollector {
 
     protected final AtomicLong deltaTotalConnections = new AtomicLong();
     protected final AtomicLong deltaTotalTopics = new AtomicLong();
@@ -47,7 +49,7 @@ public class StatsAspect {
     @Value("STATS:${spring.octopus.broker.group:DEFAULT_BROKER_GROUP}:NET_TRAFFIC_SENT")
     public String NET_TRAFFIC_SENT;
 
-    public StatsAspect(StringRedisTemplate redisTemplate) {
+    public StatsCollector(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -73,6 +75,17 @@ public class StatsAspect {
         deltaTotalRetained.accumulateAndGet(-delta, Long::sum);
     }
 
+    @AfterReturning(value = "@annotation(com.huohaodong.octopus.broker.server.metric.annotation.SentMetric)",
+            returning = "sentCount")
+    public void sentPointcut(int sentCount) {
+        deltaTotalSent.accumulateAndGet(sentCount, Long::sum);
+    }
+
+    @After("@annotation(com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric)")
+    public void receivedPointcut() {
+        deltaTotalReceived.incrementAndGet();
+    }
+
     @After("@annotation(com.huohaodong.octopus.broker.server.metric.annotation.SubscribeMetric)")
     public void subscribePointcut() {
         deltaTotalSubscriptions.incrementAndGet();
@@ -80,9 +93,7 @@ public class StatsAspect {
 
     @After("@annotation(com.huohaodong.octopus.broker.server.metric.annotation.UnSubscribeMetric)")
     public void unSubscribePointcut() {
-        if (deltaTotalSubscriptions.get() != 0) {
-            deltaTotalSubscriptions.decrementAndGet();
-        }
+        deltaTotalSubscriptions.decrementAndGet();
     }
 
     @PostConstruct

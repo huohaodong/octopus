@@ -2,6 +2,8 @@ package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.broker.server.cluster.ClusterEventManager;
+import com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric;
+import com.huohaodong.octopus.broker.server.metric.aspect.StatsCollector;
 import com.huohaodong.octopus.broker.store.message.*;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
@@ -38,7 +40,10 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
 
     private final BrokerProperties brokerProperties;
 
+    private final StatsCollector statsCollector;
+
     @Override
+    @ReceivedMetric
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
         MqttQoS QoS = msg.fixedHeader().qosLevel();
         byte[] payload = new byte[msg.payload().readableBytes()];
@@ -50,11 +55,11 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
                     false,
                     false);
         } else if (QoS.equals(MqttQoS.AT_LEAST_ONCE)) {
-            this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
-            this.sendPubAckMessage(ctx, msg.variableHeader().packetId());
+            sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
+            sendPubAckMessage(ctx, msg.variableHeader().packetId());
         } else if (QoS.equals(MqttQoS.EXACTLY_ONCE)) {
-            this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
-            this.sendPubRecMessage(ctx, msg.variableHeader().packetId());
+            sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), payload, false, false);
+            sendPubRecMessage(ctx, msg.variableHeader().packetId());
         }
 
         if (msg.fixedHeader().isRetain()) {
@@ -80,6 +85,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
                 new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
         ctx.channel().writeAndFlush(pubAckMessage);
+        statsCollector.getDeltaTotalSent().incrementAndGet();
     }
 
     private void sendPubRecMessage(ChannelHandlerContext ctx, int messageId) {
@@ -87,6 +93,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
                 new MqttFixedHeader(MqttMessageType.PUBREC, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
         ctx.channel().writeAndFlush(pubRecMessage);
+        statsCollector.getDeltaTotalSent().incrementAndGet();
     }
 
     private void sendPublishMessage(String topic, MqttQoS QoS, byte[] messageBytes, boolean isRetain, boolean isDup) {
@@ -96,6 +103,7 @@ public class MqttPublishHandler implements MqttPacketHandler<MqttPublishMessage>
         }
         subscriptions.forEach(subscription -> {
             if (sessionManager.contains(subscription.getClientId())) {
+                statsCollector.getDeltaTotalSent().incrementAndGet();
                 MqttQoS respQoS = MqttQoS.valueOf(Math.min(QoS.value(), subscription.getQoS().value()));
                 MqttPublishMessage publishMessage = null;
                 if (respQoS == MqttQoS.AT_MOST_ONCE) {
