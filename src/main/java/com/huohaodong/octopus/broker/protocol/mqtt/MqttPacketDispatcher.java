@@ -1,6 +1,8 @@
 package com.huohaodong.octopus.broker.protocol.mqtt;
 
 import com.huohaodong.octopus.broker.protocol.mqtt.handler.*;
+import com.huohaodong.octopus.broker.server.metric.annotation.ConnectionMetric;
+import com.huohaodong.octopus.broker.server.metric.annotation.DisconnectionMetric;
 import com.huohaodong.octopus.broker.store.session.ChannelManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
@@ -51,8 +53,15 @@ public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessag
     private final MqttDisconnectHandler mqttDisconnectHandler;
 
     @Override
+    @ConnectionMetric
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         channelManager.addChannel(ctx.channel());
+    }
+
+    @Override
+    @DisconnectionMetric
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
     }
 
     @Override

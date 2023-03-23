@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
+import com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric;
 import com.huohaodong.octopus.broker.store.message.PublishMessageManager;
 import com.huohaodong.octopus.broker.store.session.Session;
 import com.huohaodong.octopus.broker.store.session.SessionManager;
@@ -27,6 +28,7 @@ public class MqttDisconnectHandler implements MqttPacketHandler<MqttMessage> {
     }
 
     @Override
+    @ReceivedMetric
     public void doProcess(ChannelHandlerContext ctx, MqttMessage msg) {
         String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("CLIENT_ID")).get();
         Session session = sessionManager.get(clientId);

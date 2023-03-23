@@ -6,12 +6,12 @@ import java.util.Collection;
 
 public interface RetainMessageManager {
 
-    void put(String topic, RetainMessage message);
+    int put(String topic, RetainMessage message);
 
     @Nullable
     RetainMessage get(String topic);
 
-    void remove(String topic);
+    int remove(String topic);
 
     boolean contains(String topic);
 

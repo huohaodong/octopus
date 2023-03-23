@@ -1,5 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
+import com.huohaodong.octopus.broker.server.metric.annotation.ReceivedMetric;
+import com.huohaodong.octopus.broker.server.metric.aspect.StatsCollector;
 import com.huohaodong.octopus.broker.store.message.MessageIdGenerator;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
@@ -10,6 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.util.AttributeKey;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -19,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Slf4j
+@AllArgsConstructor
 @Component
 public class MqttSubscribeHandler implements MqttPacketHandler<MqttSubscribeMessage> {
 
@@ -28,13 +32,10 @@ public class MqttSubscribeHandler implements MqttPacketHandler<MqttSubscribeMess
 
     private final RetainMessageManager retainMessageManager;
 
-    public MqttSubscribeHandler(SubscriptionManager subscriptionManager, MessageIdGenerator idGenerator, RetainMessageManager retainMessageManager) {
-        this.subscriptionManager = subscriptionManager;
-        this.idGenerator = idGenerator;
-        this.retainMessageManager = retainMessageManager;
-    }
+    private final StatsCollector statsCollector;
 
     @Override
+    @ReceivedMetric
     public void doProcess(ChannelHandlerContext ctx, MqttSubscribeMessage msg) {
         List<MqttTopicSubscription> topicSubscriptions = msg.payload().topicSubscriptions();
         if (topicSubscriptions == null) {
@@ -54,6 +55,7 @@ public class MqttSubscribeHandler implements MqttPacketHandler<MqttSubscribeMess
                     new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                     MqttMessageIdVariableHeader.from(msg.variableHeader().messageId()),
                     new MqttSubAckPayload(QoSList));
+            statsCollector.getDeltaTotalSent().incrementAndGet();
             ctx.channel().writeAndFlush(subAckMessage);
             topicSubscriptions.forEach(topicSubscription -> {
                 String topicFilter = topicSubscription.topicName();
@@ -116,6 +118,7 @@ public class MqttSubscribeHandler implements MqttPacketHandler<MqttSubscribeMess
             }
             if (publishMessage != null) {
                 channel.writeAndFlush(publishMessage);
+                statsCollector.getDeltaTotalSent().incrementAndGet();
             }
         });
     }

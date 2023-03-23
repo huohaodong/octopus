@@ -17,8 +17,13 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
     private final ConcurrentHashMap<String, RetainMessage> map = new ConcurrentHashMap<>();
 
     @Override
-    public void put(String topic, RetainMessage message) {
+    public int put(String topic, RetainMessage message) {
+        int newTopicCount = 0;
+        if (!contains(topic)) {
+            newTopicCount = 1;
+        }
         map.put(topic, message);
+        return newTopicCount;
     }
 
     @Override
@@ -27,8 +32,12 @@ public class InMemoryRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
-    public void remove(String topic) {
-        map.remove(topic);
+    public int remove(String topic) {
+        if (contains(topic)) {
+            map.remove(topic);
+            return 1;
+        }
+        return 0;
     }
 
     @Override

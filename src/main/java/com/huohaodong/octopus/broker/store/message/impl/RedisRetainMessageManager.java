@@ -1,6 +1,8 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.server.metric.annotation.RetainMetric;
+import com.huohaodong.octopus.broker.server.metric.annotation.UnRetainMetric;
 import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
@@ -10,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,8 +39,14 @@ public class RedisRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
-    public void put(String topic, RetainMessage message) {
+    @RetainMetric
+    public int put(String topic, RetainMessage message) {
+        int newTopicCount = 0;
+        if (!contains(topic)) {
+            newTopicCount = 1;
+        }
         redisTemplate.opsForHash().put(KEY(), topic, GSON.toJson(message));
+        return newTopicCount;
     }
 
     @Override
@@ -46,8 +55,13 @@ public class RedisRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
-    public void remove(String topic) {
-        redisTemplate.opsForHash().delete(KEY(), topic);
+    @UnRetainMetric
+    public int remove(String topic) {
+        if (contains(topic)) {
+            redisTemplate.opsForHash().delete(KEY(), topic);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
