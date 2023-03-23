@@ -1,6 +1,8 @@
 package com.huohaodong.octopus.broker.store.subscription.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.server.metric.annotation.SubscribeMetric;
+import com.huohaodong.octopus.broker.server.metric.annotation.UnSubscribeMetric;
 import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
@@ -37,6 +39,7 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
+    @SubscribeMetric
     public boolean subscribe(Subscription subscription) {
         if (subscription == null) {
             return false;
@@ -47,6 +50,7 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
+    @UnSubscribeMetric
     public boolean unSubscribe(String clientId, String topicFilter) {
         redisTemplate.opsForHash().delete(KEY(clientId), topicFilter);
         return matcher.unSubscribe(clientId, topicFilter);

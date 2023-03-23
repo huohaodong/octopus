@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.server.metric.aspect.annotation;
+package com.huohaodong.octopus.broker.server.metric.annotation;
 
 import java.lang.annotation.*;
 
