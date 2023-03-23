@@ -1,6 +1,8 @@
 spring:
   application:
     name: ${spring.octopus.broker.group}-${spring.octopus.broker.id}
+  aop:
+    auto: true
   octopus:
     broker:
       group: group1

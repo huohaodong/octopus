@@ -1,6 +1,8 @@
 package com.huohaodong.octopus.broker.store.message.impl;
 
 import com.google.gson.Gson;
+import com.huohaodong.octopus.broker.server.metric.aspect.annotation.RetainMetric;
+import com.huohaodong.octopus.broker.server.metric.aspect.annotation.UnRetainMetric;
 import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.message.RetainMessage;
 import com.huohaodong.octopus.broker.store.message.RetainMessageManager;
@@ -36,6 +38,7 @@ public class RedisRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
+    @RetainMetric
     public void put(String topic, RetainMessage message) {
         redisTemplate.opsForHash().put(KEY(), topic, GSON.toJson(message));
     }
@@ -46,6 +49,7 @@ public class RedisRetainMessageManager implements RetainMessageManager {
     }
 
     @Override
+    @UnRetainMetric
     public void remove(String topic) {
         redisTemplate.opsForHash().delete(KEY(), topic);
     }
