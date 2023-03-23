@@ -75,6 +75,11 @@ public class RedisSubscriptionManager implements SubscriptionManager {
         }
     }
 
+    @Override
+    public long size() {
+        return matcher.size();
+    }
+
     private String KEY(String clientId) {
         return SUB_PREFIX + clientId;
     }

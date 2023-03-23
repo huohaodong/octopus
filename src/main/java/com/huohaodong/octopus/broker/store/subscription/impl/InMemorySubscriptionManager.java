@@ -68,4 +68,9 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
         }
     }
 
+    @Override
+    public long size() {
+        return matcher.size();
+    }
+
 }

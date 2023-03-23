@@ -22,6 +22,8 @@ public interface SubscriptionManager {
 
     void unSubscribeAll(String clientId);
 
+    long size();
+
     default boolean subscribe(String clientId, String topic) {
         return subscribe(new Subscription(clientId, topic));
     }
