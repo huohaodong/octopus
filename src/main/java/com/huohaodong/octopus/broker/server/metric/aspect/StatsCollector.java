@@ -96,9 +96,20 @@ public class StatsCollector {
         deltaTotalSubscriptions.decrementAndGet();
     }
 
+    @AfterReturning(value = "@annotation(com.huohaodong.octopus.broker.server.metric.annotation.TopicAddMetric)",
+            returning = "addCount")
+    public void topicAddPointcut(int addCount) {
+        deltaTotalTopics.accumulateAndGet(addCount, Long::sum);
+    }
+
+    @AfterReturning(value = "@annotation(com.huohaodong.octopus.broker.server.metric.annotation.TopicRemoveMetric)",
+            returning = "removeCount")
+    public void topicRemovePointcut(int removeCount) {
+        deltaTotalTopics.accumulateAndGet(-removeCount, Long::sum);
+    }
+
     @PostConstruct
     public void setupTimer() {
-        // TODO 通过配置文件配置 push 间隔
         TIMER.scheduleAtFixedRate(this::publish, 0, 5, TimeUnit.SECONDS);
     }
 

@@ -2,7 +2,10 @@ package com.huohaodong.octopus.broker.store.subscription.impl;
 
 import com.google.gson.Gson;
 import com.huohaodong.octopus.broker.server.metric.annotation.SubscribeMetric;
+import com.huohaodong.octopus.broker.server.metric.annotation.TopicAddMetric;
+import com.huohaodong.octopus.broker.server.metric.annotation.TopicRemoveMetric;
 import com.huohaodong.octopus.broker.server.metric.annotation.UnSubscribeMetric;
+import com.huohaodong.octopus.broker.server.metric.aspect.StatsCollector;
 import com.huohaodong.octopus.broker.store.config.StoreConfig;
 import com.huohaodong.octopus.broker.store.subscription.Subscription;
 import com.huohaodong.octopus.broker.store.subscription.SubscriptionManager;
@@ -15,6 +18,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +32,15 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
     /*每个 clientId 对应的订阅信息 */
     private final RedisTemplate<String, Subscription> redisTemplate = new RedisTemplate<>();
+    private final Set<String> TOPICS = new CopyOnWriteArraySet<>();
+
+    private final StatsCollector statsCollector;
+
     private final Gson GSON = new Gson();
 
-    public RedisSubscriptionManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig) {
+    public RedisSubscriptionManager(RedisConnectionFactory connectionFactory, StoreConfig storeConfig, StatsCollector statsCollector) {
         this.storeConfig = storeConfig;
+        this.statsCollector = statsCollector;
         this.redisTemplate.setConnectionFactory(connectionFactory);
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
         this.redisTemplate.setDefaultSerializer(stringSerializer);
@@ -46,6 +56,7 @@ public class RedisSubscriptionManager implements SubscriptionManager {
         }
         String clientId = subscription.getClientId();
         redisTemplate.opsForHash().put(KEY(clientId), subscription.getTopic(), GSON.toJson(subscription));
+        statsCollector.getDeltaTotalTopics().accumulateAndGet(addTopic(subscription.getTopic()), Long::sum);
         return matcher.subscribe(subscription);
     }
 
@@ -53,6 +64,7 @@ public class RedisSubscriptionManager implements SubscriptionManager {
     @UnSubscribeMetric
     public boolean unSubscribe(String clientId, String topicFilter) {
         redisTemplate.opsForHash().delete(KEY(clientId), topicFilter);
+        statsCollector.getDeltaTotalTopics().accumulateAndGet(removeTopic(topicFilter), Long::sum);
         return matcher.unSubscribe(clientId, topicFilter);
     }
 
@@ -87,5 +99,23 @@ public class RedisSubscriptionManager implements SubscriptionManager {
 
     private String KEY(String clientId) {
         return storeConfig.SUB_PREFIX + clientId;
+    }
+
+    @TopicAddMetric
+    private int addTopic(String topic) {
+        if (TOPICS.contains(topic)) {
+            return 0;
+        }
+        TOPICS.add(topic);
+        return 1;
+    }
+
+    @TopicRemoveMetric
+    private int removeTopic(String topic) {
+        if (!TOPICS.contains(topic)) {
+            return 0;
+        }
+        TOPICS.remove(topic);
+        return -1;
     }
 }
