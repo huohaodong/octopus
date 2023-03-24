@@ -5,8 +5,8 @@ spring:
     auto: true
   octopus:
     broker:
-      group: group1
-      id: broker1
+      group: GROUP1
+      id: BROKER1
       host: localhost
       port: 20000
       storage:

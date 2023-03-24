@@ -1,6 +1,7 @@
- # Octopus <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Octopus.png" alt="Octopus" width="30" height="30"/>
+# Octopus <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Octopus.png" alt="Octopus" width="30" height="30"/>
 
-基于 Netty 实现的轻量级消息发布 / 订阅中间件，完整实现了 MQTT V3.1.1 协议，支持权限认证，消息单播、多播，可用于服务与服务之间，客户端与服务之间的通信，支持 Redis 消息桥接与 Broker 集群部署，支持 Broker 集群服务状态监控。
+基于 Netty 实现的轻量级消息发布 / 订阅中间件，完整实现了 MQTT V3.1.1 协议，支持权限认证，消息单播、多播，可用于服务与服务之间，客户端与服务之间的通信，支持
+Redis 消息桥接与 Broker 集群部署，支持 Broker 集群服务状态监控。
 
 ## 特性
 
@@ -12,6 +13,44 @@
 - 基于 Spring AOP 实现埋点并定时 Push 监控数据至 Redis 中，实现 Broker 状态采集与数据统计。
 - 通过 Redis Exporter 接入统计数据至 Prometheus 并结合 Grafana 实现 Broker 集群状态可视化监控。
 - 通过 Nginx 实现 Broker 集群负载均衡，Docker 实现集群服务快速部署。
+
+## 快速开始
+
+### 简单使用
+
+从源码编译（JDK >= 11）：
+
+```shell
+mvn package -DskipTests
+```
+
+启动 Octopus：
+
+```shell
+java -jar ./target/octopus-version.jar # 根据当前编译得到的版本启动程序
+```
+
+Octopus 默认监听本机 `20000` 端口，可以根据需要自行修改 `application.yml` 中的相关配置。
+
+### Docker
+
+编译源码：
+
+```shell
+mvn package -DskipTests
+```
+
+构造镜像：
+
+```shell
+docker build -t octupus:latest .
+```
+
+启动 Octopus：
+
+```shell
+docker run --name octupos -p 20000:20000 -d octupos:latest
+```
 
 ## Benchmark
 
