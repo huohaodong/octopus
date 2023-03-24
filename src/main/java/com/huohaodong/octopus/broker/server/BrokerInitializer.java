@@ -5,6 +5,7 @@ import com.huohaodong.octopus.broker.protocol.mqtt.MqttPacketDispatcher;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -44,7 +45,7 @@ public class BrokerInitializer {
                 ch.pipeline().addLast("dispatcher", mqttPacketDispatcher);
                 ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
             }
-        });
+        }).option(ChannelOption.SO_BACKLOG, 1000);
         try {
             ChannelFuture cf = b.bind(new InetSocketAddress(brokerProperties.getHost(), brokerProperties.getPort())).sync();
             InetSocketAddress socketAddress = (InetSocketAddress) cf.channel().localAddress();
