@@ -43,13 +43,13 @@ mvn package -DskipTests
 构造镜像：
 
 ```shell
-docker build -t octupus:latest .
+docker build -t octopus:latest .
 ```
 
 启动 Octopus：
 
 ```shell
-docker run --name octupos -p 20000:20000 -d octupos:latest
+docker run --name octupos -p 20000:20000 -d octopus:latest
 ```
 
 ## Benchmark

@@ -1,4 +1,4 @@
 FROM openjdk:11
-COPY ./target/*.jar /app.jar
+COPY ./target/*.jar /octopus.jar
 EXPOSE 20000
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/octopus.jar"]
