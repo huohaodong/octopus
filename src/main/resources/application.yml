@@ -17,6 +17,6 @@ spring:
       auth:
         enable: false
   redis:
-    host: 10.201.0.222
-    port: 22221
+    host: localhost
+    port: 6379
     database: 0
