@@ -16,7 +16,9 @@ Redis 消息桥接与 Broker 集群部署，支持 Broker 集群服务状态监�
 
 ## 快速开始
 
-Octopus 默认依赖于 Redis，请先确保有可用的 Redis 服务并修改 `application.yml` 进行配置，或将 `application.yml` 中 storage 部分的配置选项全部修改为 `local` 以使用本地内存。此外，还可以使用 Octopus 提供的 `docker-compose.yml` 进行快速部署，具体请参考 [Docker Compose](#Docker-Compose) 小节。
+Octopus 默认依赖于 Redis，请先确保有可用的 Redis 服务并修改 `application.yml` 进行配置，或将 `application.yml` 中 storage 部分的配置选项全部修改为 `local` 以使用本地内存。
+
+此外，还可以使用 Octopus 提供的 `docker-compose.yml` 进行快速部署，具体请参考 [Docker Compose](#Docker-Compose) 小节。
 
 ### 简单使用
 
