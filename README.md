@@ -27,7 +27,7 @@ mvn package -DskipTests
 启动 Octopus：
 
 ```shell
-java -jar ./target/octopus-version.jar # 根据当前编译得到的版本启动程序
+java -jar ./target/octopus.jar # 根据当前编译得到的版本启动程序
 ```
 
 Octopus 默认监听本机 `20000` 端口，可以根据需要自行修改 `application.yml` 中的相关配置。
@@ -67,7 +67,57 @@ mqttx bench sub -c 10000 -t bench/%i -h localhost -p 20000 -q 2
 mqttx bench pub -c 2000 -t bench/%i -h localhost -p 20000 -q 2
 ```
 
-## 监控示例
+## Docker Compose
+
+### 部署 Broker 集群
+
+首先构造 Octopus 镜像：
+
+```shell
+docker build -t octopus:latest .
+```
+
+接下来使用 Octopus 提供的默认 docker-compose 文件来启动 Broker 集群所需的服务：
+
+```shell
+docker-compose -f ./docker-compose.yml up -d
+```
+
+`docker-compose.yml` 会默认启动两个处于同一 Broker Group 内的 Broker，分别为 BROKER1 和 BROKER2，与此同时我们还启动了一个用以支撑
+Broker 工作的 Redis 服务器。此外，为了实时检测 Broker 集群的运行状况，我们也启动了与之相应的 Prometheus 和 Grafana 服务。
+
+容器服务及其对应的端口情况如下所示：
+
+|                服务名                |  端口号  |                  说明                   |
+|:---------------------------------:|:-----:|:-------------------------------------:|
+|          octopus-broker1          | 20001 |           Octopus Broker 服务           |
+|          octopus-broker2          | 20002 |           Octopus Broker 服务           |
+|           octopus-redis           | 6379  |      Octopus Broker 对应的 Redis 服务      |
+|        octopus-prometheus         | 9090  |   用于监控 Broker 集群运行情况的 Prometheus 服务   |
+| octopus-prometheus-redis_exporter | 9121  | 用于采集 Redis 数据的 Prometheus Exporter 服务 |
+|          octopus-grafana          | 3000  |          用于展示数据的 Grafana 服务           |
+
+### 服务监控
+
+Octopus 默认将监控数据存储在 Redis 服务中，并通过 Redis-Exporter 导出监控数据到 Prometheus 中，监控数据在 Redis 中以
+Key-Value 的方式存储，命名规则为：`STATS:${BROKER 组名}:${监控数据类型}`，比如 `GROUP1` 中当前客户端连接数对应的 Key
+为：`STATS:GROUP1:TOTAL_CONNECTION`。
+
+对于我们刚刚部署的 Broker 集群而言，其对的应监控数据如下：
+
+|       监控数据在 Redis 中对应的 Key       |            说明             |
+|:--------------------------------:|:-------------------------:|
+|    STATS:GROUP1:TOTAL_TOPICS     |   当前 Broker Group 主题总数    |
+| STATS:GROUP1:TOTAL_SUBSCRIPTIONS |   当前 Broker Group 订阅总数    |
+|   STATS:GROUP1:TOTAL_RETAINED    |  当前 Broker Group 保留消息总数   |
+|     STATS:GROUP1:TOTAL_SENT      | 当前 Broker Group 已发送的数据包总数 |
+|   STATS:GROUP1:TOTAL_RECEIVED    | 当前 Broker Group 已接收的数据包总数 |
+|  STATS:GROUP1:TOTAL_CONNECTION   |  当前 Broker Group 客户端连接总数  |
+
+接下来只需要参考[Prometheus 官方文档](https://prometheus.io/docs/visualization/grafana/)
+，通过访问 `http://localhost:3000` 对我们启动的 Grafana 服务进行配置即可。
+
+### 监控示例
 
 ![prometheus grafana](https://user-images.githubusercontent.com/42486690/227205714-9218fd04-0998-4626-a499-735b4438ea75.png)
 
