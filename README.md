@@ -75,13 +75,19 @@ mqttx bench pub -c 2000 -t bench/%i -h localhost -p 20000 -q 2
 
 ### 部署 Broker 集群
 
-首先构造 Octopus 镜像：
+首先编译源码：
+
+```shell
+mvn package -DskipTests
+```
+
+接着构造 Octopus 镜像：
 
 ```shell
 docker build -t octopus:latest .
 ```
 
-接下来使用 Octopus 提供的默认 docker-compose 文件来启动 Broker 集群所需的服务：
+最后使用 Octopus 提供的 docker-compose 文件来启动 Broker 集群：
 
 ```shell
 docker-compose -f ./docker-compose.yml up -d
