@@ -124,7 +124,7 @@ Key-Value 的方式存储，命名规则为：`STATS:${BROKER 组名}:${监控�
 |   STATS:GROUP1:TOTAL_RECEIVED    | 当前 Broker Group 已接收的数据包总数 |
 |  STATS:GROUP1:TOTAL_CONNECTION   |  当前 Broker Group 客户端连接总数  |
 
-接下来只需要参考[Prometheus 官方文档](https://prometheus.io/docs/visualization/grafana/)
+接下来只需要参考 [Prometheus 官方文档](https://prometheus.io/docs/visualization/grafana/)
 ，通过访问 `http://localhost:3000` 对我们启动的 Grafana 服务进行配置即可。
 
 ### 监控示例
