@@ -1,25 +1,53 @@
 package com.huohaodong.octopus.broker.persistence.entity;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
+import static com.huohaodong.octopus.broker.persistence.meta.Constants.*;
 
+@Entity
+@Data
+@Table(
+        name = "session",
+        schema = "octopus",
+        indexes = {
+                @Index(name = "idx_broker_and_client", columnList = "broker_id, client_id")
+        }
+)
 public class Session {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "client_id", length = CLIENT_ID_LENGTH_MAX, nullable = false)
     private String clientId;
 
-    private String clientIp;
-
+    @Column(name = "broker_id", length = BROKER_ID_LENGTH_MAX, nullable = false)
     private String brokerId;
 
+    @Column(name = "client_ip", length = IP_LENGTH_MAX, nullable = false)
+    private String clientIp;
+
+    @Column(name = "broker_ip", length = IP_LENGTH_MAX, nullable = false)
     private String brokerIp;
 
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private LocalDateTime lastOnlineTime;
-
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private SessionStatus status;
 
+    @UpdateTimestamp
+    @Column(name = "last_online_time")
+    private LocalDateTime lastOnlineTime;
+
+    @CreationTimestamp
+    @Column(name = "create_date", updatable = false, nullable = false)
+    private LocalDateTime createTime;
+
+    @UpdateTimestamp
+    @Column(name = "update_date", nullable = false)
+    private LocalDateTime updateTime;
 }
