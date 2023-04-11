@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.persistence.meta;
+package com.huohaodong.octopus.broker.persistence.entity;
 
 public class Constants {
     public static final int IP_LENGTH_MAX = 15;

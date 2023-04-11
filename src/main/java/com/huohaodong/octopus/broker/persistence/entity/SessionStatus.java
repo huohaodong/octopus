@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.persistence.enums;
+package com.huohaodong.octopus.broker.persistence.entity;
 
 public enum SessionStatus {
     OFFLINE("OFFLINE"), ONLINE("ONLINE");

@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -18,38 +17,27 @@ import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(
-        name = "session",
+        name = "publish_release_message",
         schema = "octopus",
         indexes = {
-                @Index(name = "idx_broker_and_client", columnList = "broker_id, client_id")
+                @Index(name = "idx_message_identity", columnList = "broker_id, client_id, message_id"),
         }
 )
-public class Session {
+public class PublishReleaseMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "client_id", length = CLIENT_ID_LENGTH_MAX, nullable = false)
-    private String clientId;
-
     @Column(name = "broker_id", length = BROKER_ID_LENGTH_MAX, nullable = false)
     private String brokerId;
 
-    @Column(name = "client_ip", length = IP_LENGTH_MAX, nullable = false)
-    private String clientIp;
+    @Column(name = "client_id", length = CLIENT_ID_LENGTH_MAX, nullable = false)
+    private String clientId;
 
-    @Column(name = "broker_ip", length = IP_LENGTH_MAX, nullable = false)
-    private String brokerIp;
-
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private SessionStatus status;
+    @Column(name = "message_id", length = MESSAGE_ID_LENGTH_MAX, nullable = false)
+    private Integer messageId;
 
     @CreationTimestamp
     @Column(name = "create_time", updatable = false, nullable = false)
     private LocalDateTime createTime;
-
-    @UpdateTimestamp
-    @Column(name = "update_time", nullable = false)
-    private LocalDateTime updateTime;
 }

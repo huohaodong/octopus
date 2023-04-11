@@ -2,21 +2,26 @@ package com.huohaodong.octopus.broker.persistence.entity;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-import static com.huohaodong.octopus.broker.persistence.meta.Constants.*;
+import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(
         name = "publish_message",
         schema = "octopus",
         indexes = {
-                @Index(name = "idx_client_id", columnList = "client_id"),
-                @Index(name = "idx_message_id", columnList = "message_id")
+                @Index(name = "idx_message_identity", columnList = "broker_id, client_id, message_id"),
         }
 )
 public class PublishMessage {
