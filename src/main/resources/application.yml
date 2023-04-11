@@ -8,5 +8,8 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+  data:
+    redis:
+      url: redis://10.201.0.222:22221/0
 server:
   port: 20000

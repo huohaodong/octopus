@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-public class InMemorySubscriptionManager implements SubscriptionManager {
+public class InMemorySubscriptionService implements SubscriptionManager {
 
     /* 每个 Topic 对应的所有符合条件的 Subscription (ClientId 和 Topic) */
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
