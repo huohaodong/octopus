@@ -1,7 +1,9 @@
 package com.huohaodong.octopus.broker.service.message;
 
-public interface MessageIdManager {
-    int acquire(String clientId);
+import io.netty.channel.Channel;
 
-    void release(String clientId, int messageId);
+public interface MessageIdManager {
+    int acquireNextMessageId(Channel channel);
+
+    void releaseMessageId(Channel channel, int messageId);
 }

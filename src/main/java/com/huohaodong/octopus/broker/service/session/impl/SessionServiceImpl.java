@@ -10,24 +10,20 @@ import java.util.Optional;
 @Service
 public class SessionServiceImpl implements SessionService {
 
+
     @Override
-    public Channel getChannel(String clientId) {
+    public Channel getChannelByClientId(String clientId) {
         return null;
     }
 
     @Override
-    public void putChannel(String clientId, Channel channel) {
+    public void addChannel(String clientId, Channel channel) {
 
     }
 
     @Override
-    public void removeChannel(Channel channel) {
+    public void closeChannel(Channel channel) {
 
-    }
-
-    @Override
-    public boolean containsChannel(Channel channel) {
-        return false;
     }
 
     @Override
