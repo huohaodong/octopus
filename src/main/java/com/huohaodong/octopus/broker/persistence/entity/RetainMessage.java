@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
@@ -25,7 +27,10 @@ import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
                 @Index(name = "idx_broker_id_and_topic", columnList = "broker_id, topic")
         }
 )
-public class RetainMessage {
+public class RetainMessage implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -7755404005924771974L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
@@ -25,7 +27,10 @@ import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
                 @Index(name = "idx_will_message_identity", columnList = "broker_id, client_id")
         }
 )
-public class WillMessage {
+public class WillMessage implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7287997647416505798L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

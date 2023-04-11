@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
@@ -24,7 +26,10 @@ import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
                 @Index(name = "idx_message_identity", columnList = "broker_id, client_id, message_id"),
         }
 )
-public class PublishMessage {
+public class PublishMessage implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -1970710271196475976L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
