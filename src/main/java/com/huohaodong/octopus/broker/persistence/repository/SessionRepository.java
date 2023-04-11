@@ -1,4 +1,7 @@
 package com.huohaodong.octopus.broker.persistence.repository;
 
-public class SessionRepository {
+import com.huohaodong.octopus.broker.persistence.entity.Session;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SessionRepository extends JpaRepository<Session, Long> {
 }

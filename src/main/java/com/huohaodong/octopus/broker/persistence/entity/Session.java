@@ -1,5 +1,6 @@
 package com.huohaodong.octopus.broker.persistence.entity;
 
+import com.huohaodong.octopus.broker.persistence.enums.SessionStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,15 +40,11 @@ public class Session {
     @Enumerated(EnumType.ORDINAL)
     private SessionStatus status;
 
-    @UpdateTimestamp
-    @Column(name = "last_online_time")
-    private LocalDateTime lastOnlineTime;
-
     @CreationTimestamp
-    @Column(name = "create_date", updatable = false, nullable = false)
+    @Column(name = "create_time", updatable = false, nullable = false)
     private LocalDateTime createTime;
 
     @UpdateTimestamp
-    @Column(name = "update_date", nullable = false)
+    @Column(name = "update_time", nullable = false)
     private LocalDateTime updateTime;
 }
