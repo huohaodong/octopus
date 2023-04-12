@@ -23,7 +23,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
-    private final ConcurrentReferenceHashMap<Channel, MessageIdGenerator> messageIdMap = new ConcurrentReferenceHashMap<>(10, ConcurrentReferenceHashMap.ReferenceType.WEAK);
+    private final ConcurrentReferenceHashMap<Channel, MessageIdGenerator> messageIdMap = new ConcurrentReferenceHashMap<>(32, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     private final PublishMessageRepository publishMessageRepository;
 

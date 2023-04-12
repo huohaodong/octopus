@@ -15,4 +15,6 @@ public interface MessageBaseRepository<T, ID> extends Repository<T, ID> {
     List<T> findAllByBrokerIdAndClientId(String brokerId, String clientId);
 
     void deleteAllByBrokerIdAndClientId(String brokerId, String clientId);
+
+    boolean existsByBrokerIdAndClientIdAndMessageId(String brokerId, String clientId, Integer messageId);
 }
