@@ -25,5 +25,6 @@ public class PubAckHandler implements MqttPacketHandler<MqttPubAckMessage> {
         String clientId = ctx.channel().attr(CHANNEL_ATTRIBUTE_CLIENT_ID).get();
         log.debug("Release qos 1 publish message of client {}, message id {}, at broker {}", clientId, messageId, brokerProperties.getId());
         messageService.removePublishMessage(brokerProperties.getId(), clientId, messageId);
+        messageService.releaseMessageId(ctx.channel(), messageId);
     }
 }

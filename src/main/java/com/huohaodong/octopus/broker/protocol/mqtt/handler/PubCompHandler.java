@@ -27,5 +27,6 @@ public class PubCompHandler implements MqttPacketHandler<MqttMessage> {
         String clientId = ctx.channel().attr(CHANNEL_ATTRIBUTE_CLIENT_ID).get();
         log.debug("Release qos 2 publish release message of client {}, message id {}, at broker {}", clientId, messageId, brokerProperties.getId());
         messageService.removePublishReleaseMessage(brokerProperties.getId(), clientId, messageId);
+        messageService.releaseMessageId(ctx.channel(), messageId);
     }
 }
