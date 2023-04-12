@@ -42,6 +42,7 @@ public class DisconnectHandler implements MqttPacketHandler<MqttMessage> {
             }
             sessionService.removeSession(brokerProperties.getId(), clientId);
         });
+        log.debug("Close connection of client {} at broker {}", clientId, brokerProperties.getId());
         ctx.channel().close();
     }
 }
