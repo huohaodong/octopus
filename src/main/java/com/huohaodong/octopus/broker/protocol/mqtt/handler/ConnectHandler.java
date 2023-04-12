@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.HANDLER_HEARTBEAT;
 
 @Slf4j(topic = "CONNECT")
@@ -105,6 +106,7 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
 
         sessionService.addChannel(clientId, channel);
         sessionService.putSession(curSession);
+        channel.attr(CHANNEL_ATTRIBUTE_CLIENT_ID).set(clientId);
 
         if (!curSession.isCleanSession()) {
             List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessage(brokerProperties.getId(), clientId);
