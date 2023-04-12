@@ -1,12 +1,10 @@
 package com.huohaodong.octopus.broker.service.subscription.trie;
 
 
-
-import com.huohaodong.octopus.broker.service.subscription.Subscription;
+import com.huohaodong.octopus.broker.persistence.entity.Subscription;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 public class CTrie {
@@ -19,20 +17,6 @@ public class CTrie {
         final CNode mainNode = new CNode();
         mainNode.setToken(ROOT);
         this.root = new INode(mainNode);
-    }
-
-    public Optional<CNode> lookup(Topic topic) {
-        INode inode = this.root;
-        Token token = topic.headToken();
-        while (!topic.isEmpty() && (inode.mainNode().anyChildrenMatch(token))) {
-            topic = topic.exceptHeadToken();
-            inode = inode.mainNode().childOf(token);
-            token = topic.headToken();
-        }
-        if (inode == null || !topic.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(inode.mainNode());
     }
 
     private NavigationAction evaluate(Topic topic, CNode cnode) {
@@ -178,42 +162,11 @@ public class CTrie {
         return iParent.compareAndSet(iParent.mainNode(), updatedCnode) ? Action.OK : Action.REPEAT;
     }
 
-    public int size() {
-        SubscriptionCounterVisitor visitor = new SubscriptionCounterVisitor();
-        dfsVisit(this.root, visitor, 0);
-        return visitor.getResult();
-    }
-
-    public String dumpTree() {
-        DumpTreeVisitor visitor = new DumpTreeVisitor();
-        dfsVisit(this.root, visitor, 0);
-        return visitor.getResult();
-    }
-
-    private void dfsVisit(INode node, IVisitor<?> visitor, int deep) {
-        if (node == null) {
-            return;
-        }
-
-        visitor.visit(node.mainNode(), deep);
-        ++deep;
-        for (INode child : node.mainNode().allChildren()) {
-            dfsVisit(child, visitor, deep);
-        }
-    }
-
     private enum Action {
         OK, REPEAT
     }
 
-    enum NavigationAction {
+    private enum NavigationAction {
         MATCH, GODEEP, STOP
-    }
-
-    interface IVisitor<T> {
-
-        void visit(CNode node, int deep);
-
-        T getResult();
     }
 }

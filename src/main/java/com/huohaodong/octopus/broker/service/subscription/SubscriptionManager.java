@@ -1,39 +1,17 @@
 package com.huohaodong.octopus.broker.service.subscription;
 
-import io.netty.handler.codec.mqtt.MqttQoS;
-import org.springframework.lang.Nullable;
+import com.huohaodong.octopus.broker.persistence.entity.Subscription;
 
 import java.util.Collection;
 
-/*
- *  订阅关系管理器
- */
 public interface SubscriptionManager {
+    void subscribe(Subscription subscription);
 
-    boolean subscribe(Subscription subscription);
+    void unSubscribe(String brokerId, String clientId, String topic);
 
-    boolean unSubscribe(String clientId, String topicFilter);
+    Collection<Subscription> getAllMatched(String brokerId, String topicFilter);
 
-    @Nullable
-    Collection<Subscription> getAllMatched(String topicFilter);
+    Collection<Subscription> getAllSubscription(String brokerId, String clientId);
 
-    @Nullable
-    Collection<Subscription> getAllByClientId(String clientId);
-
-    void unSubscribeAll(String clientId);
-
-    long size();
-
-    default boolean subscribe(String clientId, String topic) {
-        return subscribe(new Subscription(clientId, topic));
-    }
-
-    default boolean subscribe(String clientId, String topic, MqttQoS QoS) {
-        return subscribe(new Subscription(clientId, topic, QoS));
-    }
-
-    default boolean unSubscribe(Subscription subscription) {
-        return unSubscribe(subscription.getClientId(), subscription.getTopic());
-    }
-
+    void unSubscribeAll(String brokerId, String clientId);
 }

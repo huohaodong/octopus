@@ -2,6 +2,7 @@ package com.huohaodong.octopus.broker.service.subscription.trie;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class Topic implements Serializable, Comparable<Topic> {
 
+    @Serial
     private static final long serialVersionUID = -8143152001431470940L;
 
     private final String topic;

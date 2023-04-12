@@ -1,15 +1,15 @@
 package com.huohaodong.octopus.broker.service.subscription.trie;
 
 
-import com.huohaodong.octopus.broker.service.subscription.Subscription;
+import com.huohaodong.octopus.broker.persistence.entity.Subscription;
 
 import java.util.*;
 
 public class CNode {
 
+    private final List<INode> children;
     Set<Subscription> subscriptions;
     private Token token;
-    private final List<INode> children;
 
     CNode() {
         this.children = new ArrayList<>();
@@ -79,9 +79,9 @@ public class CNode {
         if (subscriptions.contains(newSubscription)) {
             final Subscription existing = subscriptions.stream().filter(s -> s.equals(newSubscription)).findFirst().get();
             subscriptions.remove(existing);
-            subscriptions.add(new Subscription(newSubscription.getClientId(), newSubscription.getTopic(), newSubscription.getQoS()));
+            subscriptions.add(new Subscription(newSubscription.getClientId(), newSubscription.getTopic(), newSubscription.getQos()));
         } else {
-            this.subscriptions.add(new Subscription(newSubscription.getClientId(), newSubscription.getTopic(), newSubscription.getQoS()));
+            this.subscriptions.add(new Subscription(newSubscription.getClientId(), newSubscription.getTopic(), newSubscription.getQos()));
         }
         return this;
     }

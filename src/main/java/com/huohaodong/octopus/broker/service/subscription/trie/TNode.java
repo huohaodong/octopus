@@ -1,7 +1,7 @@
 package com.huohaodong.octopus.broker.service.subscription.trie;
 
 
-import com.huohaodong.octopus.broker.service.subscription.Subscription;
+import com.huohaodong.octopus.broker.persistence.entity.Subscription;
 
 class TNode extends CNode {
 
