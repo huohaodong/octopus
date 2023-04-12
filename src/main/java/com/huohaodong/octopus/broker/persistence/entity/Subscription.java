@@ -24,7 +24,7 @@ import static com.huohaodong.octopus.broker.persistence.entity.Constants.*;
         name = "subscription",
         schema = "octopus",
         indexes = {
-                @Index(name = "idx_subscription_identity", columnList = "broker_id, clientId, topic")
+                @Index(name = "idx_subscription_identity", columnList = "broker_id, client_id, topic")
         }
 )
 public class Subscription implements Serializable {
