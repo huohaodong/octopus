@@ -113,6 +113,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void putWillMessage(WillMessage willMessage) {
+        willMessageRepository.deleteByBrokerIdAndClientId(willMessage.getBrokerId(), willMessage.getClientId());
         willMessageRepository.save(willMessage);
     }
 

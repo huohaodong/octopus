@@ -20,8 +20,8 @@ public class SessionServiceImpl implements SessionService {
     private final SessionRepository sessionRepository;
 
     @Override
-    public Channel getChannelByClientId(String clientId) {
-        return clientIdToChannelMap.get(clientId);
+    public Optional<Channel> getChannelByClientId(String clientId) {
+        return Optional.ofNullable(clientIdToChannelMap.get(clientId));
     }
 
     @Override

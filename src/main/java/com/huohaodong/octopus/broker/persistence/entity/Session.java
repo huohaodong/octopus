@@ -46,6 +46,9 @@ public class Session implements Serializable {
     @Column(name = "broker_ip", length = IP_LENGTH_MAX, nullable = false)
     private String brokerIp;
 
+    @Column(name = "clean_session", nullable = false)
+    private boolean cleanSession;
+
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private SessionStatus status;
