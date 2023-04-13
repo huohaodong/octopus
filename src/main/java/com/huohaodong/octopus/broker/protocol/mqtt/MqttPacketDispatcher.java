@@ -1,6 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt;
 
 import com.huohaodong.octopus.broker.protocol.mqtt.handler.*;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.UnsupportedMessageTypeException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j(topic = "MQTT_DISPATCHER")
 @RequiredArgsConstructor
 @Component
+@ChannelHandler.Sharable
 public class MqttPacketDispatcher extends SimpleChannelInboundHandler<MqttMessage> {
     private final ConnectHandler connectHandler;
 

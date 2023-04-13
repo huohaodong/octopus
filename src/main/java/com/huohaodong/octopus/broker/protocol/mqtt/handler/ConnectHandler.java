@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,7 +100,7 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
         Session curSession = Session.builder()
                 .brokerIp(brokerProperties.getHost())
                 .brokerId(brokerProperties.getId())
-                .clientIp(channel.remoteAddress().toString())
+                .clientIp(((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress())
                 .clientId(clientId)
                 .status(SessionStatus.ONLINE)
                 .build();
