@@ -5,7 +5,7 @@ import io.netty.handler.codec.mqtt.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "PUBREL")
+@Slf4j(topic = "MQTT_PUBREL")
 @Component
 public class PubRelHandler implements MqttPacketHandler<MqttMessage> {
     @Override

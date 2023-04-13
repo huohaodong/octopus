@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
-@Slf4j(topic = "PUBCOMP")
+@Slf4j(topic = "MQTT_PUBCOMP")
 @RequiredArgsConstructor
 @Component
 public class PubCompHandler implements MqttPacketHandler<MqttMessage> {

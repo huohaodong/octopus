@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
-@Slf4j(topic = "DISCONNECT")
+@Slf4j(topic = "MQTT_DISCONNECT")
 @RequiredArgsConstructor
 @Component
 public class DisconnectHandler implements MqttPacketHandler<MqttMessage> {

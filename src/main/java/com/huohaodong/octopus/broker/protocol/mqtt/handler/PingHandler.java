@@ -5,7 +5,7 @@ import io.netty.handler.codec.mqtt.MqttMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "PING")
+@Slf4j(topic = "MQTT_PING")
 @Component
 public class PingHandler implements MqttPacketHandler<MqttMessage> {
     @Override

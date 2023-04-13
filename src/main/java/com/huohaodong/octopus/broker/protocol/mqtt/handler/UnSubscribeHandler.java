@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
-@Slf4j(topic = "UNSUBSCRIBE")
+@Slf4j(topic = "MQTT_UNSUBSCRIBE")
 @RequiredArgsConstructor
 @Component
 public class UnSubscribeHandler implements MqttPacketHandler<MqttUnsubscribeMessage> {

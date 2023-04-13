@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
-@Slf4j(topic = "SUBSCRIBE")
+@Slf4j(topic = "MQTT_SUBSCRIBE")
 @RequiredArgsConstructor
 @Component
 public class SubscribeHandler implements MqttPacketHandler<MqttSubscribeMessage> {

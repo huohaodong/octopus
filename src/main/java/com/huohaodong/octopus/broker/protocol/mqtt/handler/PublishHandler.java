@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
-@Slf4j(topic = "PUBLISH")
+@Slf4j(topic = "MQTT_PUBLISH")
 @RequiredArgsConstructor
 @Component
 public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {

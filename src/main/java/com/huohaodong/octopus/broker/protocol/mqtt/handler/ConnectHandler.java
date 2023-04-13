@@ -21,7 +21,7 @@ import java.util.Optional;
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.HANDLER_HEARTBEAT;
 
-@Slf4j(topic = "CONNECT")
+@Slf4j(topic = "MQTT_CONNECT")
 @RequiredArgsConstructor
 @Component
 public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
