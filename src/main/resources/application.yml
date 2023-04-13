@@ -8,6 +8,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 5
+          batch_versioned_data: true
+        order_updates: true
   data:
     redis:
       url: redis://10.201.0.222:22221/0
