@@ -8,6 +8,7 @@ import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
@@ -21,6 +22,7 @@ public class PubRecHandler implements MqttPacketHandler<MqttMessage> {
     private final MessageService messageService;
 
     @Override
+    @Transactional
     public void doProcess(ChannelHandlerContext ctx, MqttMessage msg) {
         MqttMessageIdVariableHeader header = (MqttMessageIdVariableHeader) msg.variableHeader();
         int messageId = header.messageId();

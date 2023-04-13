@@ -7,6 +7,7 @@ import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
 
@@ -20,6 +21,7 @@ public class PubAckHandler implements MqttPacketHandler<MqttPubAckMessage> {
     private final MessageService messageService;
 
     @Override
+    @Transactional
     public void doProcess(ChannelHandlerContext ctx, MqttPubAckMessage msg) {
         int messageId = msg.variableHeader().messageId();
         String clientId = ctx.channel().attr(CHANNEL_ATTRIBUTE_CLIENT_ID).get();

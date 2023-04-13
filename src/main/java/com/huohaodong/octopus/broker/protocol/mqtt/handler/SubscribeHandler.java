@@ -11,6 +11,7 @@ import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class SubscribeHandler implements MqttPacketHandler<MqttSubscribeMessage>
     private final SubscriptionService subscriptionService;
 
     @Override
+    @Transactional
     public void doProcess(ChannelHandlerContext ctx, MqttSubscribeMessage msg) {
         String clientId = ctx.channel().attr(CHANNEL_ATTRIBUTE_CLIENT_ID).get();
         List<MqttTopicSubscription> subscriptions = msg.payload().topicSubscriptions();
