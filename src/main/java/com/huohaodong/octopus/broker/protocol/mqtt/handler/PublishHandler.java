@@ -15,6 +15,7 @@ import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -34,6 +35,7 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
     private final SubscriptionService subscriptionService;
 
     @Override
+    @Transactional
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
         MqttQoS reqQoS = msg.fixedHeader().qosLevel();
         byte[] payload = new byte[msg.payload().readableBytes()];
@@ -85,7 +87,7 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
             String clientId = subscription.getClientId();
             sessionService.getChannelByClientId(clientId).ifPresent(channel -> {
                 MqttQoS respQoS = MqttQoS.valueOf(Math.min(QoS.value(), subscription.getQos().value()));
-                int respMessageId = (respQoS.value() >= MqttQoS.AT_LEAST_ONCE.value()) ? 0 : messageService.acquireNextMessageId(channel);
+                int respMessageId = (respQoS.value() >= MqttQoS.AT_LEAST_ONCE.value()) ? messageService.acquireNextMessageId(channel) : 0;
                 ByteBuf respMessagePayload = Unpooled.buffer().writeBytes(payload);
                 MqttPublishMessage respPublishMessage = new MqttPublishMessage(
                         new MqttFixedHeader(MqttMessageType.PUBLISH, false, respQoS, false, 0),

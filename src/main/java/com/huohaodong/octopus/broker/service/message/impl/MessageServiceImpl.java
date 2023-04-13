@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +33,13 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public int acquireNextMessageId(Channel channel) {
         messageIdMap.putIfAbsent(channel, new MessageIdGenerator());
-        return messageIdMap.get(channel).acquire();
+        return Objects.requireNonNull(messageIdMap.get(channel)).acquire();
     }
 
     @Override
     public void releaseMessageId(Channel channel, int messageId) {
         if (messageIdMap.containsKey(channel)) {
-            messageIdMap.get(channel).release(messageId);
+            Objects.requireNonNull(messageIdMap.get(channel)).release(messageId);
         }
     }
 
@@ -106,6 +103,11 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Optional<RetainMessage> getRetainMessage(String brokerId, String topic) {
         return retainMessageRepository.findByBrokerIdAndTopic(brokerId, topic);
+    }
+
+    @Override
+    public List<RetainMessage> getAllRetainMessage(String brokerId) {
+        return retainMessageRepository.findAllByBrokerId(brokerId);
     }
 
     @Override
