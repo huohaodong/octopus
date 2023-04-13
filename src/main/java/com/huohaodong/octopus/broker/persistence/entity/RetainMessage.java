@@ -44,13 +44,13 @@ public class RetainMessage implements Serializable {
     @Column(name = "topic", length = TOPIC_LENGTH_MAX, nullable = false)
     private String topic;
 
-    @Lob
-    @Column(name = "payload", length = MESSAGE_PAYLOAD_LENGTH_MAX)
-    private byte[] payload;
-
     @Column(name = "qos", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private MqttQoS qos;
+
+    @Lob
+    @Column(name = "payload", length = MESSAGE_PAYLOAD_LENGTH_MAX)
+    private byte[] payload;
 
     @CreationTimestamp
     @Column(name = "create_time", updatable = false, nullable = false)

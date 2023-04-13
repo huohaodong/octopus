@@ -98,6 +98,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void putRetainMessage(RetainMessage retainMessage) {
+        Optional<RetainMessage> oldRetainMessage = retainMessageRepository.findByBrokerIdAndTopic(retainMessage.getBrokerId(), retainMessage.getTopic());
+        oldRetainMessage.ifPresent(message -> retainMessage.setId(message.getId()));
         retainMessageRepository.save(retainMessage);
     }
 
@@ -113,7 +115,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void putWillMessage(WillMessage willMessage) {
-        willMessageRepository.deleteByBrokerIdAndClientId(willMessage.getBrokerId(), willMessage.getClientId());
+        Optional<WillMessage> oldWillMessage = willMessageRepository.findByBrokerIdAndClientId(willMessage.getBrokerId(), willMessage.getClientId());
+        oldWillMessage.ifPresent(message -> willMessage.setId(message.getId()));
         willMessageRepository.save(willMessage);
     }
 
