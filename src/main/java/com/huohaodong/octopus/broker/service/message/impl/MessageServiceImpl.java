@@ -11,10 +11,16 @@ import com.huohaodong.octopus.broker.persistence.repository.WillMessageRepositor
 import com.huohaodong.octopus.broker.service.message.MessageService;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.*;
+
+import static com.huohaodong.octopus.broker.service.cache.Constants.CACHE_RETAIN_MESSAGE;
+import static com.huohaodong.octopus.broker.service.cache.Constants.CACHE_WILL_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -94,6 +100,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @CachePut(value = CACHE_RETAIN_MESSAGE, key = "{#retainMessage.brokerId, #retainMessage.topic}")
     public void putRetainMessage(RetainMessage retainMessage) {
         Optional<RetainMessage> oldRetainMessage = retainMessageRepository.findByBrokerIdAndTopic(retainMessage.getBrokerId(), retainMessage.getTopic());
         oldRetainMessage.ifPresent(message -> retainMessage.setId(message.getId()));
@@ -101,21 +108,25 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Cacheable(value = CACHE_RETAIN_MESSAGE, key = "{#brokerId, #topic}")
     public Optional<RetainMessage> getRetainMessage(String brokerId, String topic) {
         return retainMessageRepository.findByBrokerIdAndTopic(brokerId, topic);
     }
 
     @Override
+    @Cacheable(value = CACHE_RETAIN_MESSAGE, key = "#brokerId")
     public List<RetainMessage> getAllRetainMessage(String brokerId) {
         return retainMessageRepository.findAllByBrokerId(brokerId);
     }
 
     @Override
+    @CacheEvict(value = CACHE_RETAIN_MESSAGE, key = "{#brokerId, #topic}")
     public void removeRetainMessage(String brokerId, String topic) {
         retainMessageRepository.deleteByBrokerIdAndTopic(brokerId, topic);
     }
 
     @Override
+    @CachePut(value = CACHE_WILL_MESSAGE, key = "{#willMessage.brokerId, #willMessage.clientId}")
     public void putWillMessage(WillMessage willMessage) {
         Optional<WillMessage> oldWillMessage = willMessageRepository.findByBrokerIdAndClientId(willMessage.getBrokerId(), willMessage.getClientId());
         oldWillMessage.ifPresent(message -> willMessage.setId(message.getId()));
@@ -123,11 +134,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Cacheable(value = CACHE_WILL_MESSAGE, key = "{#brokerId, #clientId}")
     public Optional<WillMessage> getWillMessage(String brokerId, String clientId) {
         return willMessageRepository.findByBrokerIdAndClientId(brokerId, clientId);
     }
 
     @Override
+    @CacheEvict(value = CACHE_WILL_MESSAGE, key = "{#brokerId, #clientId}")
     public void removeWillMessage(String brokerId, String clientId) {
         willMessageRepository.deleteByBrokerIdAndClientId(brokerId, clientId);
     }

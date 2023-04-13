@@ -87,7 +87,7 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
         Optional<Session> oldSessionLocal = sessionService.getSession(brokerProperties.getId(), clientId);
         oldSessionLocal.ifPresent(oldSession -> {
             if (oldSession.getStatus().equals(SessionStatus.ONLINE)) {
-                log.info("Duplicated connection of client {} at broker {}, close connection", clientId, brokerProperties.getId());
+                log.info("Duplicated connection of client {} at broker {}, close previous connection", clientId, brokerProperties.getId());
                 sessionService.getChannelByClientId(oldSession.getClientId()).ifPresent(ChannelOutboundInvoker::close);
             }
             if (oldSession.isCleanSession()) {
