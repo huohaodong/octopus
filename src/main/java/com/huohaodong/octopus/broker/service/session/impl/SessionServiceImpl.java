@@ -36,6 +36,8 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void putSession(Session session) {
+        Optional<Session> oldSession = sessionRepository.findByBrokerIdAndClientId(session.getBrokerId(), session.getClientId());
+        oldSession.ifPresent(s -> session.setId(s.getId()));
         sessionRepository.save(session);
     }
 
