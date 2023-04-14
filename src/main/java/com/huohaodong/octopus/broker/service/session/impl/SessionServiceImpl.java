@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
-    private final ConcurrentReferenceHashMap<String, Channel> clientIdToChannelMap = new ConcurrentReferenceHashMap<>(32, ConcurrentReferenceHashMap.ReferenceType.WEAK);
+    private final ConcurrentReferenceHashMap<String, Channel> clientIdToChannelMap = new ConcurrentReferenceHashMap<>(32);
 
     private final SessionRepository sessionRepository;
 
