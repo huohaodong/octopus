@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.CHANNEL_ATTRIBUTE_CLIENT_ID;
-import static com.huohaodong.octopus.broker.protocol.mqtt.Constants.HANDLER_HEARTBEAT;
+import static com.huohaodong.octopus.broker.server.Constants.HANDLER_HEARTBEAT;
 
 @Slf4j(topic = "MQTT_CONNECT")
 @RequiredArgsConstructor
@@ -109,6 +109,8 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
         sessionService.putSession(curSession);
         channel.attr(CHANNEL_ATTRIBUTE_CLIENT_ID).set(clientId);
 
+        // TODO: QoS2 相关的数据存储不应该和 BrokerId 绑定，尤其是重连的时候，可能客户端之前所连接的节点宕机了，
+        //       未处理的 QoS2 数据如果按照当前 BrokerId 来处理的话是找不到的，需要考虑完善这一部分的逻辑。
         if (!curSession.isCleanSession()) {
             List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessage(brokerProperties.getId(), clientId);
             List<PublishReleaseMessage> unProcessedPublishReleaseMessages = messageService.getAllPublishReleaseMessage(brokerProperties.getId(), clientId);

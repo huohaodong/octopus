@@ -15,4 +15,8 @@ public interface PublishReleaseMessageManager {
     List<PublishReleaseMessage> getAllPublishReleaseMessage(String brokerId, String clientId);
 
     void removeAllPublishReleaseMessage(String brokerId, String clientId);
+
+    List<PublishReleaseMessage> getAllPublishReleaseMessageByClientId(String clientId);
+
+    List<PublishReleaseMessage> removeAllPublishReleaseMessageByClientId(String clientId);
 }

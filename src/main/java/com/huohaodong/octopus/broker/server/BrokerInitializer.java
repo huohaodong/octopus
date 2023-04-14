@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
+import static com.huohaodong.octopus.broker.server.Constants.*;
+
 @Slf4j(topic = "BROKER_INITIALIZER")
 @RequiredArgsConstructor
 @Component
@@ -40,10 +42,10 @@ public class BrokerInitializer {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
                 log.info("Channel init {}", ch);
-                ch.pipeline().addLast("heartbeat", new IdleStateHandler(0, 0, 3600));
-                ch.pipeline().addLast("decoder", new MqttDecoder());
-                ch.pipeline().addLast("dispatcher", mqttPacketDispatcher);
-                ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
+                ch.pipeline().addLast(HANDLER_HEARTBEAT, new IdleStateHandler(0, 0, 3600));
+                ch.pipeline().addLast(HANDLER_MQTT_DECODER, new MqttDecoder());
+                ch.pipeline().addLast(HANDLER_MQTT_DISPATCHER, mqttPacketDispatcher);
+                ch.pipeline().addLast(HANDLER_MQTT_ENCODER, MqttEncoder.INSTANCE);
             }
         }).option(ChannelOption.SO_BACKLOG, 1000);
         try {
