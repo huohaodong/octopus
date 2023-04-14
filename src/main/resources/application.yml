@@ -1,12 +1,14 @@
 spring:
   datasource:
-    url: jdbc:mysql://10.201.0.222:22220/octopus
+    url: jdbc:mysql://localhost:3306/octopus
     username: root
-    password: 111111111
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      initialization-fail-timeout: 100000
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -16,7 +18,7 @@ spring:
         order_updates: true
   data:
     redis:
-      url: redis://10.201.0.222:22221/0
+      url: redis://localhost:6379/0
   cache:
     redis:
       key-prefix: "${octopus.broker.id}:"
@@ -25,8 +27,6 @@ octopus:
   broker:
     auth:
       enable: false
-    id: BROKER1
-    host: 0.0.0.0
+    id: DEFAULT_BROKER_ID
+    host: localhost
     port: 20000
-server:
-  port: 20001
