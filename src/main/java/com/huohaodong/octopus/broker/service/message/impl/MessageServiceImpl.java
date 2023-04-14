@@ -75,6 +75,16 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public List<PublishMessage> getAllPublishMessageByClientId(String clientId) {
+        return publishMessageRepository.findAllByClientId(clientId);
+    }
+
+    @Override
+    public void removeAllPublishMessageByClientId(String clientId) {
+        publishMessageRepository.deleteAllByClientId(clientId);
+    }
+
+    @Override
     public void putPublishReleaseMessage(PublishReleaseMessage publishReleaseMessage) {
         publishReleaseMessageRepository.save(publishReleaseMessage);
     }
@@ -97,6 +107,16 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void removeAllPublishReleaseMessage(String brokerId, String clientId) {
         publishReleaseMessageRepository.deleteAllByBrokerIdAndClientId(brokerId, clientId);
+    }
+
+    @Override
+    public List<PublishReleaseMessage> getAllPublishReleaseMessageByClientId(String clientId) {
+        return publishReleaseMessageRepository.findAllByClientId(clientId);
+    }
+
+    @Override
+    public void removeAllPublishReleaseMessageByClientId(String clientId) {
+        publishReleaseMessageRepository.deleteAllByClientId(clientId);
     }
 
     @Override
