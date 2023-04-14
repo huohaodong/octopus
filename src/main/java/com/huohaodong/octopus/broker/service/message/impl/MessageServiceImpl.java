@@ -26,7 +26,7 @@ import static com.huohaodong.octopus.broker.service.cache.Constants.CACHE_WILL_M
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
-    private final ConcurrentReferenceHashMap<Channel, MessageIdGenerator> messageIdMap = new ConcurrentReferenceHashMap<>(32, ConcurrentReferenceHashMap.ReferenceType.WEAK);
+    private final ConcurrentReferenceHashMap<Channel, MessageIdGenerator> messageIdMap = new ConcurrentReferenceHashMap<>(32);
 
     private final PublishMessageRepository publishMessageRepository;
 
