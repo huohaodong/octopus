@@ -8,6 +8,8 @@ services:
       - "20000:20000"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
@@ -26,11 +28,15 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
+    networks:
+      - octopus-broker-network
   octopus-redis:
     container_name: octopus-redis
     image: redis
     ports:
       - "6379:6379"
+    networks:
+      - octopus-broker-network
   octopus-broker1:
     container_name: octopus-broker1
     image: octopus
@@ -40,6 +46,8 @@ services:
       - "--octopus.broker.id=BROKER1"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20001"
+    networks:
+      - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
@@ -52,6 +60,8 @@ services:
       - "--octopus.broker.id=BROKER2"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20002"
+    networks:
+      - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
@@ -64,6 +74,8 @@ services:
       - "--octopus.broker.id=BROKER3"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20003"
+    networks:
+      - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
