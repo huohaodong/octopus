@@ -16,10 +16,6 @@ services:
       - octopus-broker1
       - octopus-broker2
       - octopus-broker3
-    links:
-      - octopus-broker1
-      - octopus-broker2
-      - octopus-broker3
   octopus-mysql:
     container_name: octopus-mysql
     image: mysql
