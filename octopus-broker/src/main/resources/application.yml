@@ -23,6 +23,8 @@ spring:
     redis:
       key-prefix: "${octopus.broker.id}:"
       time-to-live: 43200000
+  application:
+    name: octopus-broker
 octopus:
   broker:
     auth:
