@@ -1,7 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
-import com.huohaodong.octopus.broker.service.subscription.impl.SubscriptionService;
+import com.huohaodong.octopus.broker.service.subscription.SubscriptionServiceImpl;
 import com.huohaodong.octopus.common.persistence.entity.RetainMessage;
 import com.huohaodong.octopus.common.persistence.entity.Subscription;
 import com.huohaodong.octopus.common.persistence.service.message.MessageService;
@@ -29,7 +29,7 @@ public class SubscribeHandler implements MqttPacketHandler<MqttSubscribeMessage>
 
     private final MessageService messageService;
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceImpl subscriptionService;
 
     @Override
     @Transactional

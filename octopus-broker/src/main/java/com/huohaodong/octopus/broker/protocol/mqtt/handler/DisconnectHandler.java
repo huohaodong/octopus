@@ -4,7 +4,7 @@ import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.common.persistence.entity.Session;
 import com.huohaodong.octopus.common.persistence.service.message.MessageService;
 import com.huohaodong.octopus.common.persistence.service.session.SessionService;
-import com.huohaodong.octopus.broker.service.subscription.impl.SubscriptionService;
+import com.huohaodong.octopus.broker.service.subscription.SubscriptionServiceImpl;
 import com.huohaodong.octopus.common.protocol.mqtt.MqttPacketHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -26,7 +26,7 @@ public class DisconnectHandler implements MqttPacketHandler<MqttMessage> {
 
     private final SessionService sessionService;
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceImpl subscriptionService;
 
     private final MessageService messageService;
 

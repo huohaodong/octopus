@@ -1,8 +1,8 @@
-package com.huohaodong.octopus.broker.service.subscription.impl;
+package com.huohaodong.octopus.broker.service.subscription;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.common.persistence.entity.Subscription;
-import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionManager;
+import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionService;
 import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionMatcher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,9 +12,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Service
 @RequiredArgsConstructor
-public class InMemorySubscriptionService implements SubscriptionManager {
+public class InMemorySubscriptionService implements SubscriptionService {
     /* 每个 Topic 对应的所有符合条件的 Subscription (ClientId 和 Topic) */
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
 

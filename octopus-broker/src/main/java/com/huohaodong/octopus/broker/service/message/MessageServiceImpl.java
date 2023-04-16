@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.service.message.impl;
+package com.huohaodong.octopus.broker.service.message;
 
 import com.huohaodong.octopus.common.persistence.entity.PublishMessage;
 import com.huohaodong.octopus.common.persistence.entity.PublishReleaseMessage;

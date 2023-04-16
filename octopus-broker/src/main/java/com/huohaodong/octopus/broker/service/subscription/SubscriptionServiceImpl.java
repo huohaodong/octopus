@@ -1,9 +1,9 @@
-package com.huohaodong.octopus.broker.service.subscription.impl;
+package com.huohaodong.octopus.broker.service.subscription;
 
 import com.huohaodong.octopus.common.persistence.entity.Subscription;
 import com.huohaodong.octopus.common.persistence.repository.SubscriptionRepository;
-import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionManager;
 import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionMatcher;
+import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SubscriptionService implements SubscriptionManager {
+public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionMatcher matcher = new CTrieSubscriptionMatcher();
 
     /*每个 clientId 对应的订阅信息 */

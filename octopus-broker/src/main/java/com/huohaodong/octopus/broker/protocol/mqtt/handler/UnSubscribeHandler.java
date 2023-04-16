@@ -1,7 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
-import com.huohaodong.octopus.broker.service.subscription.impl.SubscriptionService;
+import com.huohaodong.octopus.broker.service.subscription.SubscriptionServiceImpl;
 import com.huohaodong.octopus.common.protocol.mqtt.MqttPacketHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
@@ -21,7 +21,7 @@ public class UnSubscribeHandler implements MqttPacketHandler<MqttUnsubscribeMess
 
     private final BrokerProperties brokerProperties;
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceImpl subscriptionService;
 
     @Override
     @Transactional

@@ -1,7 +1,7 @@
 package com.huohaodong.octopus.broker.protocol.mqtt.handler;
 
 import com.huohaodong.octopus.broker.config.BrokerProperties;
-import com.huohaodong.octopus.broker.service.subscription.impl.SubscriptionService;
+import com.huohaodong.octopus.broker.service.subscription.SubscriptionServiceImpl;
 import com.huohaodong.octopus.common.persistence.entity.PublishMessage;
 import com.huohaodong.octopus.common.persistence.entity.PublishReleaseMessage;
 import com.huohaodong.octopus.common.persistence.entity.RetainMessage;
@@ -33,7 +33,7 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
 
     private final SessionService sessionService;
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceImpl subscriptionService;
 
     @Override
     @Transactional
@@ -82,7 +82,7 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
         ctx.channel().writeAndFlush(pubRecMessage);
     }
 
-    private void sendPublishMessage(String topic, MqttQoS QoS, byte[] payload) {
+    public void sendPublishMessage(String topic, MqttQoS QoS, byte[] payload) {
         Collection<Subscription> subscriptions = subscriptionService.getAllMatched(brokerProperties.getId(), topic);
         subscriptions.forEach(subscription -> {
             String clientId = subscription.getClientId();

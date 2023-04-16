@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.service.session.impl;
+package com.huohaodong.octopus.broker.service.session;
 
 import com.huohaodong.octopus.common.persistence.entity.Session;
 import com.huohaodong.octopus.common.persistence.repository.SessionRepository;

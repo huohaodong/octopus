@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.broker.service.subscription.impl;
+package com.huohaodong.octopus.broker.service.subscription;
 
 import com.huohaodong.octopus.common.persistence.entity.Subscription;
 import com.huohaodong.octopus.common.persistence.service.subscription.SubscriptionMatcher;

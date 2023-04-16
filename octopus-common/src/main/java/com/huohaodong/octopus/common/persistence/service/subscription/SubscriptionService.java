@@ -4,7 +4,7 @@ import com.huohaodong.octopus.common.persistence.entity.Subscription;
 
 import java.util.Collection;
 
-public interface SubscriptionManager {
+public interface SubscriptionService {
     void subscribe(Subscription subscription);
 
     void unSubscribe(String brokerId, String clientId, String topic);

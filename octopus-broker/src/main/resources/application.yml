@@ -25,6 +25,12 @@ spring:
       time-to-live: 43200000
   application:
     name: octopus-broker
+  profiles:
+    active: dev
+  cloud:
+    consul:
+      discovery:
+        prefer-ip-address: true
 octopus:
   broker:
     auth:
@@ -32,3 +38,11 @@ octopus:
     id: DEFAULT_BROKER_ID
     host: localhost
     port: 20000
+grpc:
+  consul:
+    discovery:
+      register-health-check: true
+      enabled: true
+      tags:
+        - "${octopus.broker.id}"
+  port: 19999
