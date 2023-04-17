@@ -45,4 +45,7 @@ grpc:
       enabled: true
       tags:
         - "${octopus.broker.id}"
+      instance-id: "${octopus.broker.id}"
+      metadata:
+        broker-id: "${octopus.broker.id}"
   port: 19999

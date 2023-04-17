@@ -11,9 +11,9 @@ octopus:
   broker:
     auth:
       enable: false
-    id: BROKER_1
+    id: BROKER_2
     host: localhost
-    port: 20000
+    port: 20001
 grpc:
   consul:
     discovery:
@@ -24,4 +24,4 @@ grpc:
       instance-id: "${octopus.broker.id}"
       metadata:
         broker-id: "${octopus.broker.id}"
-  port: 19999
+  port: 19998

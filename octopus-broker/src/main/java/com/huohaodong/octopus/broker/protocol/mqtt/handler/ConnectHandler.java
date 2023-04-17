@@ -4,6 +4,7 @@ import com.huohaodong.octopus.broker.config.BrokerProperties;
 import com.huohaodong.octopus.common.persistence.entity.*;
 import com.huohaodong.octopus.common.persistence.service.message.MessageService;
 import com.huohaodong.octopus.common.persistence.service.session.SessionService;
+import com.huohaodong.octopus.common.protocol.cluster.ClusterService;
 import com.huohaodong.octopus.common.protocol.mqtt.MqttPacketHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -33,6 +34,8 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
     private final SessionService sessionService;
 
     private final MessageService messageService;
+
+    private final ClusterService clusterService;
 
     @Override
     @Transactional
@@ -98,6 +101,11 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
             }
         });
 
+        List<Session> oldSessionGlobal = sessionService.getSession(clientId);
+        if (!oldSessionGlobal.isEmpty()) {
+            clusterService.broadcastToClose(clientId);
+        }
+
         Session curSession = Session.builder()
                 .brokerIp(brokerProperties.getHost())
                 .brokerId(brokerProperties.getId())
@@ -110,11 +118,9 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
         sessionService.putSession(curSession);
         channel.attr(CHANNEL_ATTRIBUTE_CLIENT_ID).set(clientId);
 
-        // TODO: QoS2 相关的数据存储不应该和 BrokerId 绑定，尤其是重连的时候，可能客户端之前所连接的节点宕机了，
-        //       未处理的 QoS2 数据如果按照当前 BrokerId 来处理的话是找不到的，需要考虑完善这一部分的逻辑。
         if (!curSession.isCleanSession()) {
-            List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessage(brokerProperties.getId(), clientId);
-            List<PublishReleaseMessage> unProcessedPublishReleaseMessages = messageService.getAllPublishReleaseMessage(brokerProperties.getId(), clientId);
+            List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessageByClientId(clientId);
+            List<PublishReleaseMessage> unProcessedPublishReleaseMessages = messageService.getAllPublishReleaseMessageByClientId(clientId);
             unProcessedPublishMessages.forEach(message -> {
                 MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                         new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQos(), false, 0),

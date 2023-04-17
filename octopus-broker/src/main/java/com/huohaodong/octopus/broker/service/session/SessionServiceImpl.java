@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,6 +45,11 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Optional<Session> getSession(String brokerId, String clientId) {
         return sessionRepository.findByBrokerIdAndClientId(brokerId, clientId);
+    }
+
+    @Override
+    public List<Session> getSession(String clientId) {
+        return sessionRepository.findAllByClientId(clientId);
     }
 
     @Override

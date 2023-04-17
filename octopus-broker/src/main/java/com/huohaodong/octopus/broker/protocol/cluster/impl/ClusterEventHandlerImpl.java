@@ -12,11 +12,9 @@ import io.netty.handler.codec.mqtt.MqttMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j(topic = "CLUSTER_EVENT_HANDLER")
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class ClusterEventHandlerImpl implements ClusterEventHandler {
 
@@ -46,6 +44,7 @@ public class ClusterEventHandlerImpl implements ClusterEventHandler {
                         messageService.removeAllPublishReleaseMessage(session.getBrokerId(), session.getClientId());
                         subscriptionService.unSubscribeAll(brokerProperties.getId(), clientId);
                     }
+                    sessionService.removeSession(brokerProperties.getId(), clientId);
                 });
             } catch (InterruptedException e) {
                 log.error("Error occurs when close duplicate login client {}", clientId);

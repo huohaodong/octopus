@@ -2,12 +2,15 @@ package com.huohaodong.octopus.common.persistence.service.session;
 
 import com.huohaodong.octopus.common.persistence.entity.Session;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SessionManager {
     void putSession(Session session);
 
     Optional<Session> getSession(String brokerId, String clientId);
+
+    List<Session> getSession(String clientId);
 
     void removeSession(String brokerId, String clientId);
 

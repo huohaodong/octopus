@@ -8,6 +8,7 @@ import com.huohaodong.octopus.common.persistence.entity.RetainMessage;
 import com.huohaodong.octopus.common.persistence.entity.Subscription;
 import com.huohaodong.octopus.common.persistence.service.message.MessageService;
 import com.huohaodong.octopus.common.persistence.service.session.SessionService;
+import com.huohaodong.octopus.common.protocol.cluster.ClusterService;
 import com.huohaodong.octopus.common.protocol.mqtt.MqttPacketHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,6 +36,8 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
 
     private final SubscriptionServiceImpl subscriptionService;
 
+    private final ClusterService clusterService;
+
     @Override
     @Transactional
     public void doProcess(ChannelHandlerContext ctx, MqttPublishMessage msg) {
@@ -53,6 +56,13 @@ public class PublishHandler implements MqttPacketHandler<MqttPublishMessage> {
                 sendPubRecMessage(ctx, msg.variableHeader().packetId());
             }
         }
+        clusterService.broadcastPublishMessage(PublishMessage.builder()
+                .brokerId(brokerProperties.getId())
+                .topic(msg.variableHeader().topicName())
+                .qos(reqQoS)
+                .payload(payload)
+                .build()
+        );
         if (msg.fixedHeader().isRetain()) {
             if (payload.length == 0) {
                 messageService.removeRetainMessage(brokerProperties.getId(), msg.variableHeader().topicName());
