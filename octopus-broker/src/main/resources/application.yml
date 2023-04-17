@@ -8,8 +8,8 @@ spring:
       initialization-fail-timeout: 100000
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create
+    show-sql: false
     properties:
       hibernate:
         jdbc:
@@ -29,6 +29,8 @@ spring:
     consul:
       discovery:
         prefer-ip-address: true
+      host: localhost
+      port: 8500
 octopus:
   broker:
     auth:

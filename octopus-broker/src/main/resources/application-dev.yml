@@ -7,6 +7,10 @@ spring:
   data:
     redis:
       url: redis://10.201.0.222:22221/0
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 octopus:
   broker:
     auth:

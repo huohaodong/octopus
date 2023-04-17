@@ -26,6 +26,13 @@ services:
       - "3306:3306"
     networks:
       - octopus-broker-network
+  octopus-consul:
+    container_name: octopus-consul
+    image: consul
+    ports:
+      - "8500:8500"
+    networks:
+      - octopus-broker-network
   octopus-redis:
     container_name: octopus-redis
     image: redis
@@ -42,11 +49,17 @@ services:
       - "--octopus.broker.id=BROKER1"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20001"
+      - "--spring.cloud.consul.host=octopus-consul"
+      - "--spring.cloud.consul.port=8500"
+      - "--spring.cloud.consul.discovery.prefer-ip-address=true"
+      - "--spring.jpa.hibernate.ddl-auto=create"
+      - "--spring.jpa.show-sql=false"
     networks:
       - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
+      - octopus-consul
   octopus-broker2:
     container_name: octopus-broker2
     image: octopus
@@ -56,11 +69,18 @@ services:
       - "--octopus.broker.id=BROKER2"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20002"
+      - "--spring.cloud.consul.host=octopus-consul"
+      - "--spring.cloud.consul.port=8500"
+      - "--spring.cloud.consul.discovery.prefer-ip-address=true"
+      - "--spring.jpa.hibernate.ddl-auto=update"
+      - "--spring.jpa.show-sql=false"
     networks:
       - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
+      - octopus-consul
+      - octopus-broker1
   octopus-broker3:
     container_name: octopus-broker3
     image: octopus
@@ -70,10 +90,18 @@ services:
       - "--octopus.broker.id=BROKER3"
       - "--octopus.broker.host=0.0.0.0"
       - "--octopus.broker.port=20003"
+      - "--spring.cloud.consul.host=octopus-consul"
+      - "--spring.cloud.consul.port=8500"
+      - "--spring.cloud.consul.discovery.prefer-ip-address=true"
+      - "--spring.jpa.hibernate.ddl-auto=update"
+      - "--spring.jpa.show-sql=false"
     networks:
       - octopus-broker-network
     depends_on:
       - octopus-mysql
       - octopus-redis
+      - octopus-consul
+      - octopus-broker1
+      - octopus-broker2
 networks:
  octopus-broker-network:
