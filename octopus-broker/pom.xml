@@ -2,8 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.huohaodong</groupId>
-        <artifactId>octopus</artifactId>
+        <groupId>com.huohaodong.octopus</groupId>
+        <artifactId>octopus-all</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.huohaodong</groupId>
+            <groupId>com.huohaodong.octopus</groupId>
             <artifactId>octopus-common</artifactId>
             <version>${revision}</version>
         </dependency>
