@@ -118,23 +118,6 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
         sessionService.putSession(curSession);
         channel.attr(CHANNEL_ATTRIBUTE_CLIENT_ID).set(clientId);
 
-        if (!curSession.isCleanSession()) {
-            List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessageByClientId(clientId);
-            List<PublishReleaseMessage> unProcessedPublishReleaseMessages = messageService.getAllPublishReleaseMessageByClientId(clientId);
-            unProcessedPublishMessages.forEach(message -> {
-                MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-                        new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQos(), false, 0),
-                        new MqttPublishVariableHeader(message.getTopic(), message.getMessageId()), Unpooled.buffer().writeBytes(message.getPayload()));
-                channel.writeAndFlush(publishMessage);
-            });
-            unProcessedPublishReleaseMessages.forEach(message -> {
-                MqttMessage publishReleaseMessage = MqttMessageFactory.newMessage(
-                        new MqttFixedHeader(MqttMessageType.PUBREL, true, MqttQoS.AT_MOST_ONCE, false, 0),
-                        MqttMessageIdVariableHeader.from(message.getMessageId()), null);
-                channel.writeAndFlush(publishReleaseMessage);
-            });
-        }
-
         if (msg.variableHeader().keepAliveTimeSeconds() > 0) {
             if (channel.pipeline().names().contains(HANDLER_HEARTBEAT)) {
                 channel.pipeline().remove(HANDLER_HEARTBEAT);
@@ -159,5 +142,22 @@ public class ConnectHandler implements MqttPacketHandler<MqttConnectMessage> {
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
         channel.writeAndFlush(connAck);
+
+        if (!curSession.isCleanSession()) {
+            List<PublishMessage> unProcessedPublishMessages = messageService.getAllPublishMessageByClientId(clientId);
+            List<PublishReleaseMessage> unProcessedPublishReleaseMessages = messageService.getAllPublishReleaseMessageByClientId(clientId);
+            unProcessedPublishMessages.forEach(message -> {
+                MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                        new MqttFixedHeader(MqttMessageType.PUBLISH, true, message.getQos(), false, 0),
+                        new MqttPublishVariableHeader(message.getTopic(), message.getMessageId()), Unpooled.buffer().writeBytes(message.getPayload()));
+                channel.writeAndFlush(publishMessage);
+            });
+            unProcessedPublishReleaseMessages.forEach(message -> {
+                MqttMessage publishReleaseMessage = MqttMessageFactory.newMessage(
+                        new MqttFixedHeader(MqttMessageType.PUBREL, true, MqttQoS.AT_MOST_ONCE, false, 0),
+                        MqttMessageIdVariableHeader.from(message.getMessageId()), null);
+                channel.writeAndFlush(publishReleaseMessage);
+            });
+        }
     }
 }
