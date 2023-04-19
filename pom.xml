@@ -20,6 +20,7 @@
     <modules>
         <module>octopus-broker</module>
         <module>octopus-common</module>
+        <module>octopus-exporter</module>
     </modules>
 
     <properties>
