@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/octopus
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      initialization-fail-timeout: 100000
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 5
+          batch_versioned_data: true
+        order_updates: true
+  data:
+    redis:
+      url: redis://localhost:6379/0
+  cache:
+    redis:
+      key-prefix: "${octopus.broker.id}:"
+      time-to-live: 43200000
+  application:
+    name: octopus-broker
+  cloud:
+    consul:
+      discovery:
+        prefer-ip-address: true
+      host: localhost
+      port: 8500
+  profiles:
+    active: dev
+octopus:
+  broker:
+    auth:
+      enable: false
+    exporter:
+      enable: false
+    id: DEFAULT_BROKER_ID
+    host: localhost
+    port: 20000
+grpc:
+  consul:
+    discovery:
+      register-health-check: true
+      enabled: true
+      tags:
+        - "${octopus.broker.id}"
+      instance-id: "${octopus.broker.id}"
+      metadata:
+        broker-id: "${octopus.broker.id}"
+  port: 19999

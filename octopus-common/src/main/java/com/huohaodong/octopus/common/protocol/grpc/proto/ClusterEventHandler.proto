@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option java_package = "com.huohaodong.octopus.common.protocol.grpc";
+option java_multiple_files = true;
+
+service ClusterEventListener {
+  rpc OnEvent(ClusterRequest) returns (ClusterResponse);
+}
+
+message ClusterRequest {
+  string broker_id = 1;
+  oneof request {
+    ClusterPublishRequest publish_request = 2;
+    ClusterCloseChannelRequest close_channel_request = 3;
+  }
+}
+
+message ClusterResponse {
+  string broker_id = 1;
+  ResultCode result_code = 2;
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    OK = 1;
+    UNAUTHORIZED = 2;
+    UNKNOWN_BROKER_ID = 3;
+    UNKNOWN_CLIENT_ID = 4;
+  }
+}
+
+message ClusterPublishRequest {
+  string topic = 2;
+  QoS qos = 3;
+  bytes payload = 4;
+  enum QoS {
+    AT_MOST_ONCE = 0;
+    AT_LEAST_ONCE = 1;
+    EXACTLY_ONCE = 2;
+  }
+}
+
+message ClusterCloseChannelRequest {
+  string client_id = 2;
+}
