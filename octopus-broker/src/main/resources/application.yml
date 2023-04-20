@@ -37,6 +37,8 @@ octopus:
   broker:
     auth:
       enable: false
+    exporter:
+      enable: false
     id: DEFAULT_BROKER_ID
     host: localhost
     port: 20000

@@ -10,6 +10,8 @@ public class ExporterProperties {
 
     private int port = 19998;
 
+    private boolean enable = false;
+
     public String getHost() {
         return host;
     }
@@ -24,5 +26,13 @@ public class ExporterProperties {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }
