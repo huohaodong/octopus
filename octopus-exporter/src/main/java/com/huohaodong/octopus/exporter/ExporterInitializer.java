@@ -1,6 +1,7 @@
 package com.huohaodong.octopus.exporter;
 
 import com.huohaodong.octopus.exporter.config.ExporterProperties;
+import com.huohaodong.octopus.exporter.metric.Metrics;
 import io.prometheus.client.exporter.HTTPServer;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+
 
 @Slf4j(topic = "EXPORTER")
 @RequiredArgsConstructor

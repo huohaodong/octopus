@@ -1,4 +1,4 @@
-package com.huohaodong.octopus.exporter;
+package com.huohaodong.octopus.exporter.metric;
 
 public class Constants {
     public static final String METRIC_CONNECTION_ACTIVE = "connection_active";

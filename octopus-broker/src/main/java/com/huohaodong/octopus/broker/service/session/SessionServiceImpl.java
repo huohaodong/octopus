@@ -3,6 +3,8 @@ package com.huohaodong.octopus.broker.service.session;
 import com.huohaodong.octopus.common.persistence.entity.Session;
 import com.huohaodong.octopus.common.persistence.repository.SessionRepository;
 import com.huohaodong.octopus.common.persistence.service.session.SessionService;
+import com.huohaodong.octopus.exporter.metric.annotation.GaugeDecMetric;
+import com.huohaodong.octopus.exporter.metric.annotation.GaugeIncMetric;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,8 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.huohaodong.octopus.exporter.metric.Constants.METRIC_CONNECTION_ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -26,11 +30,13 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
+    @GaugeIncMetric(name = METRIC_CONNECTION_ACTIVE)
     public void addChannel(String clientId, Channel channel) {
         clientIdToChannelMap.put(clientId, channel);
     }
 
     @Override
+    @GaugeDecMetric(name = METRIC_CONNECTION_ACTIVE)
     public void closeChannel(Channel channel) {
         channel.closeFuture().addListener((ChannelFutureListener) future -> clientIdToChannelMap.remove(channel));
     }

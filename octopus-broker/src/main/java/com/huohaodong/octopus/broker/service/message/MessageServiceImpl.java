@@ -9,6 +9,8 @@ import com.huohaodong.octopus.common.persistence.repository.PublishReleaseMessag
 import com.huohaodong.octopus.common.persistence.repository.RetainMessageRepository;
 import com.huohaodong.octopus.common.persistence.repository.WillMessageRepository;
 import com.huohaodong.octopus.common.persistence.service.message.MessageService;
+import com.huohaodong.octopus.exporter.metric.annotation.GaugeDecMetric;
+import com.huohaodong.octopus.exporter.metric.annotation.GaugeIncMetric;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,6 +23,8 @@ import java.util.*;
 
 import static com.huohaodong.octopus.broker.service.cache.Constants.CACHE_RETAIN_MESSAGE;
 import static com.huohaodong.octopus.broker.service.cache.Constants.CACHE_WILL_MESSAGE;
+import static com.huohaodong.octopus.exporter.metric.Constants.METRIC_RETAIN_MESSAGE_ACTIVE;
+import static com.huohaodong.octopus.exporter.metric.Constants.METRIC_WILL_MESSAGE_ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -120,6 +124,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @GaugeIncMetric(name = METRIC_RETAIN_MESSAGE_ACTIVE)
     @CachePut(value = CACHE_RETAIN_MESSAGE, key = "{#retainMessage.brokerId, #retainMessage.topic}")
     public void putRetainMessage(RetainMessage retainMessage) {
         Optional<RetainMessage> oldRetainMessage = retainMessageRepository.findByBrokerIdAndTopic(retainMessage.getBrokerId(), retainMessage.getTopic());
@@ -140,12 +145,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @GaugeDecMetric(name = METRIC_RETAIN_MESSAGE_ACTIVE)
     @CacheEvict(value = CACHE_RETAIN_MESSAGE, key = "{#brokerId, #topic}")
     public void removeRetainMessage(String brokerId, String topic) {
         retainMessageRepository.deleteByBrokerIdAndTopic(brokerId, topic);
     }
 
     @Override
+    @GaugeIncMetric(name = METRIC_WILL_MESSAGE_ACTIVE)
     @CachePut(value = CACHE_WILL_MESSAGE, key = "{#willMessage.brokerId, #willMessage.clientId}")
     public void putWillMessage(WillMessage willMessage) {
         Optional<WillMessage> oldWillMessage = willMessageRepository.findByBrokerIdAndClientId(willMessage.getBrokerId(), willMessage.getClientId());
@@ -160,6 +167,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @GaugeDecMetric(name = METRIC_WILL_MESSAGE_ACTIVE)
     @CacheEvict(value = CACHE_WILL_MESSAGE, key = "{#brokerId, #clientId}")
     public void removeWillMessage(String brokerId, String clientId) {
         willMessageRepository.deleteByBrokerIdAndClientId(brokerId, clientId);
