@@ -31,8 +31,6 @@ spring:
         prefer-ip-address: true
       host: localhost
       port: 8500
-  profiles:
-    active: dev
 octopus:
   broker:
     auth:
