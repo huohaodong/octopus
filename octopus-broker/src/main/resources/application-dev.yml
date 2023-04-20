@@ -11,6 +11,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  cloud:
+    consul:
+      host: 10.201.0.222
+      port: 8500
 octopus:
   broker:
     auth:

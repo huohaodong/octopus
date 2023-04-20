@@ -23,6 +23,11 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>com.huohaodong.octopus</groupId>
+            <artifactId>octopus-exporter</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
