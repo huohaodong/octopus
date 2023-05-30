@@ -14,6 +14,8 @@
 - 基于 Spring AOP 埋点实现自定义 Prometheus Exporter，结合 Grafana 实现 Broker 集群状态可视化监控。
 - 通过 Nginx 实现 Broker 集群 L4 负载均衡，Docker Compose 实现集群服务快速部署。
 
+<img src="https://github.com/huohaodong/octopus/assets/42486690/1d6199e1-cd3a-457c-bf45-7ffd66a1b8d8" width=50% height=50%>
+
 ## 快速开始
 
 ### 简单使用
